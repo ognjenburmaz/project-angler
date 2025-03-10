@@ -23,8 +23,13 @@ public class AstronomyService {
         this.restTemplate = restTemplate;
     }
 
+
     @Cacheable(value = "astronomyCache", key = "#city", unless = "#result == null")
-    public AstronomyResponse getAstronomy(String city) {
+    public AstronomyResponse getAstronomyConditions(String city) {
+        return getAstronomyData(city);
+    }
+
+    public AstronomyResponse getAstronomyData(String city) {
         System.out.println("Calling Astronomy API for city: " + city);
 
         String url = ASTRONOMY_URL.replace("{city}", city).replace("{apiKey}", API_KEY);

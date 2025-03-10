@@ -18,9 +18,25 @@ public class WaterService {
 
     @Cacheable(value = "waterCache", key = "#city", unless = "#result == null")
     public List<Element> getWaterConditions(String city) throws IOException {
+        return getWaterData(city);
+    }
+
+    public List<Element> getWaterData(String city) throws IOException {
+        System.out.println("Scraping Water data for city: " + city);
+
         List<Element> waterConditions = new ArrayList<>();
 
-        Document doc = Jsoup.connect("https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=45090").get();
+        Document doc;
+
+        switch (city) {
+            case "Sremska Mitrovica" : doc = Jsoup.connect("https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=45090").get();
+                break;
+            case "Belgrade" : doc = Jsoup.connect("https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=45099").get();
+                break;
+            case "Novi Sad" : doc = Jsoup.connect("https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=42035").get();
+                break;
+            default: return null;
+        }
 
         Element level = doc.select("td:has(img[src='../../../repository/ikonice/interf/nivo.gif'])").first();
         waterConditions.add(level);

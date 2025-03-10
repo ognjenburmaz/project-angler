@@ -2,18 +2,25 @@
   "name": "demo",
   "version": "1.0.0",
   "scripts": {
-    "build": "npx tailwindcss -i src/main/resources/static/css/input.css -o src/main/resources/static/css/output.css --watch"
+    "build": "npx tailwindcss -i input.css -o src/main/resources/static/css/output.css --watch",
+    "dev": "npx tailwindcss -i input.css -o src/main/resources/static/css/output.css --watch"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "ognjenburmaz",
+  "license": "MIT",
   "dependencies": {
-    "@tailwindcss/cli": "^4.0.10",
-    "autoprefixer": "^10.4.20",
+    "@tailwindcss/cli": "^4.0.12",
     "lucide": "^0.477.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.0.10"
+    "tailwindcss": "^4.0.12"
   },
   "main": "index.js",
-  "description": ""
+  "description": "A web app intended to assist the user by simplifying\r self informing and statistics tracking related to fishing.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ognjenburmaz/project-angler.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ognjenburmaz/project-angler/issues"
+  },
+  "homepage": "https://github.com/ognjenburmaz/project-angler#readme"
 }

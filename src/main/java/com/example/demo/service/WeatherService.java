@@ -26,7 +26,11 @@ public class WeatherService {
     }
 
     @Cacheable(value = "weatherCache", key = "#city", unless = "#result == null")
-    public WeatherResponse getWeather(String city) {
+    public WeatherResponse getWeatherConditions(String city) {
+        return getWeatherData(city);
+    }
+
+    public WeatherResponse getWeatherData(String city) {
         System.out.println("Calling Weather API for city: " + city);
         lastApiCallTime = LocalDateTime.now();
 

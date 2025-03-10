@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Record A Catch | Fishing Buddy</title>
+  <link th:href="@{/css/output.css}" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 254px;
+      width: 100%;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    .location-info {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+<div class="min-h-screen bg-gray-100 flex flex-col">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-blue-600 to-green-600 text-white p-4 shadow-md">
+    <div class="container mx-auto flex items-center justify-between">
+      <div class="flex items-center">
+        <i data-lucide="fish" class="w-8 h-8 mr-2"></i>
+        <a th:href="@{/}"><h1 class="text-2xl font-bold">Fishing Buddy</h1></a>
+      </div>
+      <div class="relative" x-data="{ open: false }">
+        <!-- Dropdown Button -->
+        <button @click="open = !open" class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700">
+          <span>Select a City</span>
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div x-show="open" @click.away="open = false"
+             class="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-lg z-50">
+          <ul class="py-2">
+            <li><a href="/conditions?city=Sremska Mitrovica" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Sremska Mitrovica</a></li>
+            <li><a href="/conditions?city=Belgrade" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Belgrade</a></li>
+            <li><a href="/conditions?city=Novi Sad" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Novi Sad</a></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-4 py-8">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Weather Conditions Panel -->
+      <div class="bg-green-50 p-6 rounded-lg shadow-md h-full">
+        <div class="bg-white p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-green-600 mb-3">Catch spot:</h3>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <div>
+              <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 me-4"
+                      onclick="getLocation()">Get My Location</button>
+                <div id="location-info" class="location-info"></div>
+                <div class="mt-2"><p class="text-sm text-gray-500" th:text="'Last updated:?'">Last updated: 10:00</p></div>
+              </div>
+              <div id="map"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="bg-blue-50 p-6 rounded-lg shadow-md h-full">
+
+        <!-- Water Conditions -->
+        <div class="bg-white p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-blue-700 mb-3">What's the catch?</h3>
+          <form action="/submit-catch" method="POST" class="space-y-4">
+            <!-- Fish Selection -->
+            <div class="flex items-center">
+              <i data-lucide="fish" class="w-6 h-6 text-blue-500 mr-3"></i>
+              <div class="w-full">
+                <label for="fish" class="text-sm text-gray-600">Pick a fish</label>
+                <select id="fish" name="fish" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500">
+                  <option value="bass">Bass</option>
+                  <option value="trout">Trout</option>
+                  <option value="salmon">Salmon</option>
+                  <option value="catfish">Catfish</option>
+                  <option value="perch">Perch</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Note Input -->
+            <div class="flex items-center">
+              <i data-lucide="info" class="w-6 h-6 text-blue-500 mr-3"></i>
+              <div class="w-full">
+                <label for="note" class="text-sm text-gray-600">Leave a note!</label>
+                <textarea id="note" name="note" rows="3" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Write something..."></textarea>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end">
+              <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-4">
+    <div class="container mx-auto px-4 text-center">
+      <p class="text-sm">&copy; 2025 Fishing Buddy | Your fishing companion</p>
+      <p class="text-xs text-gray-400 mt-1">Weather and location data provided by trusted sources. Updates evey 5 minutes.</p>
+    </div>
+  </footer>
+</div>
+<!--suppress JSUnresolvedReference -->
+<script>
+  lucide.createIcons();
+</script>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  let map;
+  let marker;
+
+  function getLocation() {
+    if (navigator.geolocation) {
+      document.getElementById("location-info").innerHTML = 'Loading...'
+      navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
+
+  function showPosition(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    document.getElementById("location-info").innerHTML =
+            `Latitude: ${lat}, Longitude: ${lng}`;
+
+    if (!map) {
+      map = L.map('map').setView([lat, lng], 15);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      marker = L.marker([lat, lng]).addTo(map)
+              .bindPopup("You are here!")
+              .openPopup();
+    } else {
+      map.setView([lat, lng], 15);
+      marker.setLatLng([lat, lng]).bindPopup("You are here!").openPopup();
+    }
+  }
+
+  function showError(error) {
+    let errorMsg;
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        errorMsg = "User denied the request for Geolocation.";
+        break;
+      case error.POSITION_UNAVAILABLE:
+        errorMsg = "Location information is unavailable.";
+        break;
+      case error.TIMEOUT:
+        errorMsg = "The request to get user location timed out.";
+        break;
+      default:
+        errorMsg = "An unknown error occurred.";
+        break;
+    }
+    document.getElementById("location-info").innerHTML = `<span style="color: red;">${errorMsg}</span>`;
+  }
+</script>
+</body>
+</html>
