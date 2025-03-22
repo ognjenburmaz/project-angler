@@ -2,7 +2,7 @@ package com.example.demo.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AstronomyDTO {
+public class AstronomyDto {
 
     private Astronomy astronomy;
 

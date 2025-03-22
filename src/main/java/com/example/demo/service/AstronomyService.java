@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.AstronomyDTO;
+import com.example.demo.dto.AstronomyDto;
 import com.example.demo.response.AstronomyResponse;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.cache.annotation.CacheEvict;
@@ -33,7 +33,7 @@ public class AstronomyService {
         System.out.println("Calling Astronomy API for city: " + city);
 
         String url = ASTRONOMY_URL.replace("{city}", city).replace("{apiKey}", API_KEY);
-        AstronomyDTO astronomyDTO = restTemplate.getForObject(url, AstronomyDTO.class);
+        AstronomyDto astronomyDTO = restTemplate.getForObject(url, AstronomyDto.class);
 
         AstronomyResponse astronomyResponse = new AstronomyResponse();
         assert astronomyDTO != null;

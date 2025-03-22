@@ -2,7 +2,7 @@ package com.example.demo.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class WeatherDTO {
+public class WeatherDto {
     private Current current;
 
     public Current getCurrent() {

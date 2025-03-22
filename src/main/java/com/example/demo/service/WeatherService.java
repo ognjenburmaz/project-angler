@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.WeatherDTO;
+import com.example.demo.dto.WeatherDto;
 import com.example.demo.response.WeatherResponse;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -35,7 +35,7 @@ public class WeatherService {
         lastApiCallTime = LocalDateTime.now();
 
         String url = CURRENT_WEATHER_URL.replace("{city}", city).replace("{apiKey}", API_KEY);
-        WeatherDTO weatherDTO = restTemplate.getForObject(url, WeatherDTO.class);
+        WeatherDto weatherDTO = restTemplate.getForObject(url, WeatherDto.class);
 
         WeatherResponse weatherResponse = new WeatherResponse();
         assert weatherDTO != null;
