@@ -1,19 +1,24 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,6 +29,9 @@ public class User implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
+    @Enumerated
+    private Role role;
 
     @Column(name = "verification_code")
     private String verificationCode;
@@ -36,9 +44,6 @@ public class User implements UserDetails {
         this.username = username;
         this.email = email;
         this.password = password;
-    }
-    //default constructor
-    public User(){
     }
 
     @Override

@@ -1,13 +1,10 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.LoginUserDto;
 import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.dto.VerifyUserDto;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import jakarta.mail.MessagingException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,45 +16,25 @@ import java.util.Random;
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
     public AuthenticationService(
             UserRepository userRepository,
-            AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder,
             EmailService emailService
     ) {
-        this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
     }
 
     public User signup(RegisterUserDto input) {
-        User user = new User(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
-        user.setVerificationCode(generateVerificationCode());
-        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
-        user.setEnabled(false);
-        sendVerificationEmail(user);
+        User user = new User();
+        user.setUsername(input.getUsername());
+        user.setPassword(passwordEncoder.encode(input.getPassword()));
+        user.setEnabled(true);
+
         return userRepository.save(user);
-    }
-
-    public User authenticate(LoginUserDto input) {
-        User user = userRepository.findByEmail(input.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!user.isEnabled()) {
-            throw new RuntimeException("Account not verified. Please verify your account.");
-        }
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getEmail(),
-                        input.getPassword()
-                )
-        );
-
-        return user;
     }
 
     public void verifyUser(VerifyUserDto input) {
