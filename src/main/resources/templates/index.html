@@ -19,57 +19,87 @@
                 <i data-lucide="fish" class="w-8 h-8 mr-2"></i>
                 <a th:href="@{/}"><h1 class="text-2xl font-bold">Fishing Buddy</h1></a>
             </div>
+
             <div class="flex items-center gap-3">
-
-            <div sec:authorize="!isAuthenticated()">
-                <p>You are not logged in. Please log in to access all features.</p>
-            </div>
-
-                <div><a th:href="@{/statistics/addFish}" class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700">Record a catch</a></div>
-                <div class="relative" x-data="{ open: false }">
-                    <!-- Dropdown Button Account -->
+                <!-- Main Dropdown Button -->
+                <div class="relative" x-data="{ open: false, submenu: '' }">
                     <button @click="open = !open" class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700">
-                        <span>Account</span>
+                        <span>Menu</span>
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
 
-                    <!-- Dropdown Menu -->
-                    <div x-show="open" @click.away="open = false "
-                         class="absolute right-0 top-full mt-2 w-24 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-lg z-50">
+                    <!-- Main Dropdown Menu -->
+                    <div x-show="open" @click.away="open = false; submenu = ''"
+                         class="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-lg z-50">
                         <ul class="py-2">
-                            <div sec:authorize="isAuthenticated()"><li><a href="#" class="block px-4 py-2 hover:bg-blue-500 hover:text-white" onclick="document.getElementById('logoutForm').submit()">Logout</a>
-                                <form id="logoutForm" th:action="@{/auth/logout}" method="post" style="display:none;">
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                </form></li></div>
-                            <li sec:authorize="!isAuthenticated()"><a href="/auth/login" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Login</a></li>
-                            <li sec:authorize="!isAuthenticated()"><a href="/auth/signup" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Sign up</a></li>
-                        </ul>
-                    </div>
-                </div>
+                            <!-- Record a catch (direct link) -->
+                            <li>
+                                <a th:href="@{/statistics/addFish}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">
+                                    Record a catch
+                                </a>
+                            </li>
 
-                <div class="relative" x-data="{ open: false }">
-                    <!-- Dropdown Button City -->
-                    <button @click="open = !open" class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700">
-                        <span>Check conditions for a city</span>
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
+                            <!-- Account Submenu -->
+                            <li class="relative" @mouseenter="submenu = 'account'" @mouseleave="submenu = ''">
+                                <a href="#" class="flex justify-between items-center px-4 py-2 hover:bg-blue-500 hover:text-white">
+                                    <span>Account</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </a>
+                                <!-- Account Submenu Items -->
+                                <ul x-show="submenu === 'account'"
+                                    class="absolute right-full top-0 ml-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+                                    <li sec:authorize="isAuthenticated()">
+                                        <a href="#" class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+                                           onclick="document.getElementById('logoutForm').submit()">Logout</a>
+                                        <form id="logoutForm" th:action="@{/auth/logout}" method="post" style="display:none;">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        </form>
+                                    </li>
+                                    <li sec:authorize="!isAuthenticated()">
+                                        <a href="/auth/login" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Login</a>
+                                    </li>
+                                    <li sec:authorize="!isAuthenticated()">
+                                        <a href="/auth/signup" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Sign up</a>
+                                    </li>
+                                </ul>
+                            </li>
 
-                    <!-- Dropdown Menu -->
-                    <div x-show="open" @click.away="open = false"
-                         class="absolute right-0 top-full mt-2 w-44 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-lg z-50">
-                        <ul class="py-2">
-                            <li><a href="/conditions?city=Sremska Mitrovica" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Sremska Mitrovica</a></li>
-                            <li><a href="/conditions?city=Belgrade" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Belgrade</a></li>
-                            <li><a href="/conditions?city=Novi Sad" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Novi Sad</a></li>
+                            <!-- City Conditions Submenu -->
+                            <li class="relative" @mouseenter="submenu = 'city'" @mouseleave="submenu = ''">
+                                <a href="#" class="flex justify-between items-center px-4 py-2 hover:bg-blue-500 hover:text-white">
+                                    <span>City Conditions</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </a>
+                                <!-- City Submenu Items -->
+                                <ul x-show="submenu === 'city'"
+                                    class="absolute right-full top-0 ml-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+                                    <li>
+                                        <a href="/conditions?city=Sremska Mitrovica" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">
+                                            Sremska Mitrovica
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/conditions?city=Belgrade" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">
+                                            Belgrade
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/conditions?city=Novi Sad" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">
+                                            Novi Sad
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </div>
-
         </div>
     </header>
 
@@ -78,6 +108,7 @@
         <div class="container mx-auto px-6 mt-6">
             <h2 class="text-3xl font-bold text-gray-800">Welcome to Fishing Buddy!</h2>
             <p class="text-lg text-gray-600 mt-3">Track weather conditions, log your catches, and plan the perfect fishing trip.</p>
+            <p sec:authorize="!isAuthenticated()" class="text-lg text-gray-600 mt-3">You are not logged in. Please log in to access all features.</p>
             <a th:href="@{/auth/signup}" class="mt-6 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700">
                 Get Started
             </a>
