@@ -2,12 +2,18 @@ package com.example.demo.service;
 
 import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.dto.VerifyUserDto;
+import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import jakarta.mail.MessagingException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
@@ -28,12 +34,13 @@ public class AuthenticationService {
         this.emailService = emailService;
     }
 
-    public User signup(RegisterUserDto input) {
-        User user = new User();
-        user.setUsername(input.getUsername());
-        user.setPassword(passwordEncoder.encode(input.getPassword()));
-        user.setEnabled(true);
-
+    public User signup(RegisterUserDto input, String token) {
+        User user = new User(input.getUsername(), input.getEmail(),
+                    passwordEncoder.encode(input.getPassword()), Role.USER);
+        user.setVerificationCode(generateVerificationCode());
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusDays(1));
+        user.setEnabled(false);
+        sendVerificationEmail(user, token);
         return userRepository.save(user);
     }
 
@@ -57,7 +64,7 @@ public class AuthenticationService {
         }
     }
 
-    public void resendVerificationCode(String email) {
+    public void resendVerificationCode(String email, String token) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -66,36 +73,47 @@ public class AuthenticationService {
             }
             user.setVerificationCode(generateVerificationCode());
             user.setVerificationCodeExpiresAt(LocalDateTime.now().plusHours(1));
-            sendVerificationEmail(user);
+            sendVerificationEmail(user, token);
             userRepository.save(user);
         } else {
             throw new RuntimeException("User not found");
         }
     }
 
-    private void sendVerificationEmail(User user) { //TODO: Update with company logo
-        String subject = "Account Verification";
-        String verificationCode = "VERIFICATION CODE " + user.getVerificationCode();
-        String htmlMessage = "<html>"
-                + "<body style=\"font-family: Arial, sans-serif;\">"
-                + "<div style=\"background-color: #f5f5f5; padding: 20px;\">"
-                + "<h2 style=\"color: #333;\">Welcome to our app!</h2>"
-                + "<p style=\"font-size: 16px;\">Please enter the verification code below to continue:</p>"
-                + "<div style=\"background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);\">"
-                + "<h3 style=\"color: #333;\">Verification Code:</h3>"
-                + "<p style=\"font-size: 18px; font-weight: bold; color: #007bff;\">" + verificationCode + "</p>"
-                + "</div>"
-                + "</div>"
-                + "</body>"
-                + "</html>";
+    private void sendVerificationEmail(User user, String token) {
+        String returnUrl = "http://localhost:8080/auth/verify?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+
+        String htmlMessage = """
+        <html>
+        <body style="font-family: Arial, sans-serif;">
+            <div style="background-color: #f5f5f5; padding: 20px;">
+                <h2 style="color: #333;">Welcome to Fishing Buddy!</h2>
+                <p style="font-size: 16px;">Please enter this verification code to activate your account:</p>
+                <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: #333;">Verification Code:</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: #007bff;">%s</p>
+                </div>
+                <p style="font-size: 14px; margin-top: 20px;">
+                    <strong>Lost the code?</strong> 
+                    <a href="%s" style="color: #007bff;">Click here to return to verification</a> 
+                    (link expires in 24 hours).
+                </p>
+            </div>
+        </body>
+        </html>
+        """.formatted(user.getVerificationCode(), returnUrl);
 
         try {
-            emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
+            emailService.sendVerificationEmail(
+                    user.getEmail(),
+                    "Verify Your Fishing Buddy Account",
+                    htmlMessage
+            );
         } catch (MessagingException e) {
-            // Handle email sending exception
-            e.printStackTrace();
+            throw new RuntimeException("Email sending failed", e);
         }
     }
+
     private String generateVerificationCode() {
         Random random = new Random();
         int code = random.nextInt(900000) + 100000;

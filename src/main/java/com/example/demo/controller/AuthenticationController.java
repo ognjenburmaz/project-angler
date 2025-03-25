@@ -5,10 +5,16 @@ import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.dto.VerifyUserDto;
 import com.example.demo.model.User;
 import com.example.demo.service.AuthenticationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.Instant;
 
 @RequestMapping("/auth")
 @Controller
@@ -18,6 +24,9 @@ public class AuthenticationController {
     public AuthenticationController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
+
+    @Value("${app.encryption.password}") private String encryptionPassword;
+    @Value("${app.encryption.salt}") private String encryptionSalt;
 
     @GetMapping(value = "/login")
     public String login(Model model) {
@@ -32,32 +41,70 @@ public class AuthenticationController {
     }
 
     @GetMapping(value = "/verify")
-    public String verify(Model model) {
-        if (model.containsAttribute("user")) { return "verify"; }
-        return "index";
+    public String verifyEmail(
+            @RequestParam String token,
+            Model model
+    ) {
+        TextEncryptor encryptor = Encryptors.text(
+                encryptionPassword,
+                encryptionSalt
+        );
+        try {
+            String decrypted = encryptor.decrypt(token);
+            String[] parts = decrypted.split("\\|");
+            String email = parts[0];
+            long creationTime = Long.parseLong(parts[1]);
+
+            boolean isExpired = Instant.now().toEpochMilli() - creationTime > 86_400_000;
+            if (isExpired) {
+                model.addAttribute("error", "This verification link has expired.");
+                return "errorPage";
+            }
+
+            model.addAttribute("email", email);
+            return "verify";
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Invalid verification link.");
+            return "errorPage";
+        }
     }
 
     @PostMapping("/signup")
     public String register(@ModelAttribute RegisterUserDto registerUserDto, Model model) {
-        User registeredUser = authenticationService.signup(registerUserDto);
-        model.addAttribute("user", registeredUser);
+        TextEncryptor encryptor = Encryptors.text(
+                encryptionPassword,
+                encryptionSalt
+        );
+        String token = encryptor.encrypt(registerUserDto.getEmail() + "|" + System.currentTimeMillis());
+        User user = authenticationService.signup(registerUserDto, token);
+        model.addAttribute("token", token);
+
+        VerifyUserDto verifyUserDto = new VerifyUserDto(user.getEmail());
+        model.addAttribute("verifyUserDto", verifyUserDto);
+
         return "verify";
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyUser(@RequestBody VerifyUserDto verifyUserDto) {
+    public String verifyUser(
+            @ModelAttribute VerifyUserDto verifyUserDto,
+            RedirectAttributes redirectAttributes
+    ) {
         try {
             authenticationService.verifyUser(verifyUserDto);
-            return ResponseEntity.ok("Account verified successfully");
+            redirectAttributes.addFlashAttribute("success", "Account verified successfully!");
+            return "redirect:/auth/login";
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/error";
         }
     }
 
     @PostMapping("/resend")
-    public ResponseEntity<?> resendVerificationCode(@RequestBody String email) {
+    public ResponseEntity<?> resendVerificationCode(@RequestParam String email, @RequestParam String token) {
         try {
-            authenticationService.resendVerificationCode(email);
+            authenticationService.resendVerificationCode(email, token);
             return ResponseEntity.ok("Verification code sent");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
