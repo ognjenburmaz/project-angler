@@ -72,6 +72,14 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     public String register(@ModelAttribute RegisterUserDto registerUserDto, Model model) {
+        if(authenticationService.isEmailAlreadyInUse(registerUserDto.getEmail())) {
+            model.addAttribute("error", "This email is already in use.");
+            return "register";
+        }
+        if(authenticationService.isUsernameAlreadyInUse(registerUserDto.getUsername())) {
+            model.addAttribute("error", "This username is already in use.");
+            return "register";
+        }
         TextEncryptor encryptor = Encryptors.text(
                 encryptionPassword,
                 encryptionSalt

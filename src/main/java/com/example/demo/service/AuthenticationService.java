@@ -4,12 +4,8 @@ import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.dto.VerifyUserDto;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
 import jakarta.mail.MessagingException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -20,16 +16,16 @@ import java.util.Random;
 
 @Service
 public class AuthenticationService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
     public AuthenticationService(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
+            UserService userService,
+            BCryptPasswordEncoder passwordEncoder,
             EmailService emailService
     ) {
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
     }
@@ -38,14 +34,14 @@ public class AuthenticationService {
         User user = new User(input.getUsername(), input.getEmail(),
                     passwordEncoder.encode(input.getPassword()), Role.USER);
         user.setVerificationCode(generateVerificationCode());
-        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusDays(1));
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);
         sendVerificationEmail(user, token);
-        return userRepository.save(user);
+        return userService.save(user);
     }
 
     public void verifyUser(VerifyUserDto input) {
-        Optional<User> optionalUser = userRepository.findByEmail(input.getEmail());
+        Optional<User> optionalUser = userService.findByEmail(input.getEmail());
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
@@ -55,7 +51,7 @@ public class AuthenticationService {
                 user.setEnabled(true);
                 user.setVerificationCode(null);
                 user.setVerificationCodeExpiresAt(null);
-                userRepository.save(user);
+                userService.save(user);
             } else {
                 throw new RuntimeException("Invalid verification code");
             }
@@ -65,16 +61,16 @@ public class AuthenticationService {
     }
 
     public void resendVerificationCode(String email, String token) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+        Optional<User> optionalUser = userService.findByEmail(email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.isEnabled()) {
                 throw new RuntimeException("Account is already verified");
             }
             user.setVerificationCode(generateVerificationCode());
-            user.setVerificationCodeExpiresAt(LocalDateTime.now().plusHours(1));
+            user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
             sendVerificationEmail(user, token);
-            userRepository.save(user);
+            userService.save(user);
         } else {
             throw new RuntimeException("User not found");
         }
@@ -96,7 +92,7 @@ public class AuthenticationService {
                 <p style="font-size: 14px; margin-top: 20px;">
                     <strong>Lost the code?</strong> 
                     <a href="%s" style="color: #007bff;">Click here to return to verification</a> 
-                    (link expires in 24 hours).
+                    (link expires in 15 minutes).
                 </p>
             </div>
         </body>
@@ -118,5 +114,15 @@ public class AuthenticationService {
         Random random = new Random();
         int code = random.nextInt(900000) + 100000;
         return String.valueOf(code);
+    }
+
+    public boolean isEmailAlreadyInUse(String email) {
+        Optional<User> optionalUser = userService.findByEmail(email);
+        return optionalUser.isPresent();
+    }
+
+    public boolean isUsernameAlreadyInUse(String username) {
+        Optional<User> optionalUser = userService.findByUsername(username);
+        return optionalUser.isPresent();
     }
 }

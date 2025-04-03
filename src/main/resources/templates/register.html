@@ -23,7 +23,7 @@
 <main class="flex-grow flex items-center justify-center">
   <div class="bg-white p-8 rounded-lg shadow-md w-96">
     <h2 class="text-2xl font-semibold text-gray-700 text-center mb-6">Create an Account</h2>
-    <form action="/auth/signup" method="post" th:object="${registerUserDto}" class="space-y-4">
+    <form th:action="@{/auth/signup}" method="post" th:object="${registerUserDto}" class="space-y-4">
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
       <div>
         <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
@@ -50,6 +50,7 @@
         Sign Up
       </button>
     </form>
+    <div th:if="${error}" th:text="${error}" class="alert alert-danger text-center pt-2 text-red-600" role="alert">Error</div>
     <p class="text-center text-sm text-gray-600 mt-4">Already have an account?
       <a th:href="@{/auth/login}" class="text-blue-500 hover:underline">Sign in</a>
     </p>

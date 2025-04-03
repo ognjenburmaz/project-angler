@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record A Catch | Fishing Buddy</title>
+    <link th:href="@{/css/output.css}" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="min-h-screen bg-gray-100 flex flex-col">
+    <div th:replace="~{navbar :: navbar}"></div>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="overflow-x-auto">
+            <table id="fishTable" class="w-full stripe hover">
+                <thead class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">#</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Weight (kg)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Length (cm)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Note</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Time caught</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                <tr th:each="fish, iterStat : ${allFish}" class="hover:bg-emerald-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${iterStat.count}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-teal-100 text-teal-800" th:text="${fish.type}"></span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${fish.weight}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${fish.length}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${#strings.length(fish.note) > 30 ? #strings.substring(fish.note, 0, 30) + '...' : fish.note}"></td>
+                    <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate" th:text="${fish.time}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <a th:href="@{/statistics/myFish/view/{id}(id=${fish.id})}"
+                               class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md hover:bg-indigo-100 transition-colors">
+                                <i class="fas fa-eye mr-1"></i> View
+                            </a>
+                            <form th:action="@{/statistics/myFish/delete/{id}(id=${fish.id})}" method="post" class="inline">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                <button type="submit"
+                                        class="text-rose-600 hover:text-rose-900 bg-rose-50 px-3 py-1 rounded-md hover:bg-rose-100 transition-colors"
+                                        onclick="return confirm('Permanently delete this fish?')">
+                                    <i class="fas fa-trash-alt mr-1"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">&copy; 2025 Fishing Buddy | Your fishing companion</p>
+            <p class="text-xs text-gray-400 mt-1">Weather and location data provided by trusted sources. Updates evey 5 minutes.</p>
+        </div>
+    </footer>
+</div>
+<!--suppress JSUnresolvedReference -->
+<script>
+    lucide.createIcons();
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#fishTable').DataTable({
+            responsive: true,
+            dom: '<"flex justify-between items-center mb-4"lf>rt<"flex justify-between items-center mt-4"ip>',
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search fish...",
+            },
+            initComplete: function() {
+                $('.dataTables_filter input').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500');
+                $('.dataTables_length select').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500');
+            }
+        });
+    });
+</script>
+</body>
+</html>

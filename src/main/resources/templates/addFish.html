@@ -20,58 +20,42 @@
       margin-top: 10px;
       font-size: 16px;
     }
+    textarea {
+      resize: none;
+    }
   </style>
 </head>
 <body>
 <div class="min-h-screen bg-gray-100 flex flex-col">
-  <!-- Header -->
-  <header class="bg-gradient-to-r from-blue-600 to-green-600 text-white p-4 shadow-md">
-    <div class="container mx-auto flex items-center justify-between">
-      <div class="flex items-center">
-        <i data-lucide="fish" class="w-8 h-8 mr-2"></i>
-        <a th:href="@{/}"><h1 class="text-2xl font-bold">Fishing Buddy</h1></a>
-      </div>
-      <div class="relative" x-data="{ open: false }">
-        <!-- Dropdown Button -->
-        <button @click="open = !open" class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700">
-          <span>Select a City</span>
-          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-          </svg>
-        </button>
+  <div th:replace="~{navbar :: navbar}"></div>
 
-        <!-- Dropdown Menu -->
-        <div x-show="open" @click.away="open = false"
-             class="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-lg z-50">
-          <ul class="py-2">
-            <li><a href="/conditions?city=Sremska Mitrovica" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Sremska Mitrovica</a></li>
-            <li><a href="/conditions?city=Belgrade" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Belgrade</a></li>
-            <li><a href="/conditions?city=Novi Sad" class="block px-4 py-2 hover:bg-blue-500 hover:text-white">Novi Sad</a></li>
-          </ul>
-        </div>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- Main Content -->
+  <!-- Location -->
   <main class="flex-grow container mx-auto px-4 py-8">
+    <form th:action="@{/statistics/addFish}" method="POST" th:object="${fishDto}" class="space-y-4">
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Weather Conditions Panel -->
       <div class="bg-green-50 p-6 rounded-lg shadow-md h-full">
         <div class="bg-white p-4 rounded-lg">
           <h3 class="text-lg font-semibold text-green-600 mb-3">Catch spot:</h3>
           <div class="space-y-4">
             <div class="flex items-center">
               <div>
-              <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 me-4"
-                      onclick="getLocation()">Get My Location</button>
+<!--              <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 me-4"-->
+<!--                      onclick="getLocation()">Update Location</button>-->
                 <div id="location-info" class="location-info"></div>
-                <div class="mt-2"><p class="text-sm text-gray-500" th:text="'Last updated:?'">Last updated: 10:00</p></div>
+                <input type="text" id="latitude" name="latitude" th:field="*{latitude}" placeholder="Latitude" readonly>
+                <input type="text" id="longitude" name="longitude" th:field="*{longitude}" placeholder="Longitude" readonly>
               </div>
               <div id="map"></div>
             </div>
+          </div>
+          <div class="w-full max-w-md mx-auto mt-6 mb-19">
+            <label for="city" class="text-sm text-gray-600">Confirm the city</label>
+            <select id="city" name="city" th:field="*{city}" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500">
+              <option value="Sremska Mitrovica">Sremska Mitrovica</option>
+              <option value="Novi Sad">Novi Sad</option>
+              <option value="Belgrade">Belgrade</option>
+            </select>
           </div>
         </div>
       </div>
@@ -79,42 +63,57 @@
       <!-- Right Panel -->
       <div class="bg-blue-50 p-6 rounded-lg shadow-md h-full">
 
-        <!-- Water Conditions -->
-        <div class="bg-white p-4 rounded-lg">
+        <div class="bg-white p-4 rounded-lg space-y-4">
           <h3 class="text-lg font-semibold text-blue-700 mb-3">What's the catch?</h3>
-          <form action="/submit-catch" method="POST" class="space-y-4">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <!-- Fish Selection -->
             <div class="flex items-center">
               <i data-lucide="fish" class="w-6 h-6 text-blue-500 mr-3"></i>
               <div class="w-full">
                 <label for="fish" class="text-sm text-gray-600">Pick a fish</label>
-                <select id="fish" name="fish" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500">
-                  <option value="bass">Bass</option>
-                  <option value="trout">Trout</option>
-                  <option value="salmon">Salmon</option>
-                  <option value="catfish">Catfish</option>
-                  <option value="perch">Perch</option>
+                <select id="fish" name="fish" th:field="*{type}" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500">
+                  <option value="Zander">Zander</option>
+                  <option value="Bass">Bass</option>
+                  <option value="Trout">Trout</option>
+                  <option value="Salmon">Salmon</option>
+                  <option value="Catfish">Catfish</option>
+                  <option value="Perch">Perch</option>
                 </select>
               </div>
             </div>
 
-            <!-- Note Input -->
+              <div class="flex items-center">
+                <i data-lucide="weight" class="w-6 h-6 text-blue-500 mr-3"></i>
+                <div>
+                  <label for="weight" class="text-sm text-gray-600">Input weight</label>
+                  <input id="weight" name="weight" th:field="*{weight}" type="number" step=".01" min="0" max="100" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Weight (kg)">
+                </div>
+              </div>
+
+              <div class="flex items-center">
+                <i data-lucide="ruler" class="w-6 h-6 text-blue-500 mr-3"></i>
+                <div>
+                  <label for="length" class="text-sm text-gray-600">Input length</label>
+                  <input id="length" name="length" th:field="*{length}" type="number" min="1" max="300" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Length (cm)">
+                </div>
+              </div>
+
             <div class="flex items-center">
               <i data-lucide="info" class="w-6 h-6 text-blue-500 mr-3"></i>
               <div class="w-full">
                 <label for="note" class="text-sm text-gray-600">Leave a note!</label>
-                <textarea id="note" name="note" rows="3" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Write something..."></textarea>
+                <textarea id="note" name="note" th:field="*{note}" th:rows="3" th:maxlength="255" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Write something..."></textarea>
               </div>
             </div>
 
-            <!-- Submit Button -->
             <div class="flex justify-end">
               <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Submit</button>
             </div>
-          </form>
         </div>
       </div>
     </div>
+    </form>
+
   </main>
 
   <!-- Footer -->
@@ -133,6 +132,8 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+  onload = () => {getLocation()}
+
   let map;
   let marker;
 
@@ -149,8 +150,11 @@
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
 
-    document.getElementById("location-info").innerHTML =
-            `Latitude: ${lat}, Longitude: ${lng}`;
+    // document.getElementById("location-info").innerHTML =
+    //         `Latitude: ${lat}, Longitude: ${lng}`;
+    document.getElementById("latitude").value = lat.toString();
+    document.getElementById("longitude").value = lng.toString();
+    document.getElementById("location-info").innerHTML = 'Here is your location!';
 
     if (!map) {
       map = L.map('map').setView([lat, lng], 15);
