@@ -79,6 +79,9 @@
                                         class="absolute right-full top-0 ml-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
                                 >
                                     <li sec:authorize="isAuthenticated()">
+                                        <a href="/users/me" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors">My profile</a>
+                                    </li>
+                                    <li sec:authorize="isAuthenticated()">
                                         <a href="#" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors"
                                            onclick="document.getElementById('logoutForm').submit()">Logout</a>
                                         <form id="logoutForm" th:action="@{/auth/logout}" method="post" style="display:none;">

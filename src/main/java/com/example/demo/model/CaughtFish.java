@@ -70,13 +70,16 @@ public class CaughtFish {
     @Column(nullable = false)
     private LocalDateTime time;
 
+    @Column
+    private String imagePath;
+
     public CaughtFish(String type, Double weight, Double length, String note,
                       User owner, Double airTemperature, Double airPressure,
                       String weatherCondition, Integer cloudCover, Double uvIndex,
                       Double windSpeed, String windDirection, Double rainPrecipitation, Integer humidity,
                       String waterTemperature, String waterFlow, String waterHeight,
                       String moonPhase, Double illumination, Double longitude, Double latitude,
-                      String city, LocalDateTime time) {
+                      String city, LocalDateTime time, String imagePath) {
         this.type = type;
         this.weight = weight;
         this.length = length;
@@ -100,5 +103,6 @@ public class CaughtFish {
         this.latitude = latitude;
         this.city = city;
         this.time = time;
+        this.imagePath = imagePath;
     }
 }

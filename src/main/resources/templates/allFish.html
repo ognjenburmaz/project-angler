@@ -18,8 +18,8 @@
     <div th:replace="~{navbar :: navbar}"></div>
 
     <main class="flex-grow container mx-auto px-4 py-8">
-        <div class="overflow-x-auto">
-            <table id="fishTable" class="w-full stripe hover">
+        <div class="w-full overflow-x-auto">
+            <table id="fishTable" class="min-w-full divide-y divide-gray-200 whitespace-nowrap">
                 <thead class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">#</th>
@@ -80,15 +80,28 @@
 <script>
     $(document).ready(function() {
         $('#fishTable').DataTable({
-            responsive: true,
+            responsive: false,
+            scrollX: true,
             dom: '<"flex justify-between items-center mb-4"lf>rt<"flex justify-between items-center mt-4"ip>',
             language: {
                 search: "_INPUT_",
                 searchPlaceholder: "Search fish...",
+                info: "Showing _START_-_END_ / _TOTAL_",
+                infoEmpty: "0-0 / 0",
+                infoFiltered: "(filtered from _MAX_ total)"
             },
             initComplete: function() {
-                $('.dataTables_filter input').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500');
                 $('.dataTables_length select').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500');
+                $('.dataTables_filter input').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500');
+
+                // Style the pagination buttons
+                $('#fishTable_paginate a').addClass('px-2.5 py-1 text-sm rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors');
+                $('#fishTable_paginate a.current').addClass('!bg-emerald-500 !border-emerald-500 !text-white');
+            },
+            drawCallback: function() {
+                // Re-apply styles after table updates (e.g., pagination)
+                $('#fishTable_paginate a').addClass('px-2.5 py-1 text-sm rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors');
+                $('#fishTable_paginate a.current').addClass('!bg-emerald-500 !border-emerald-500 !text-white');
             }
         });
     });

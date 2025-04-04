@@ -158,7 +158,9 @@
                     <div class="bg-white p-4 rounded-lg shadow-md flex-1 flex flex-col">
                         <h3 class="text-lg font-semibold mb-4">Fish Photo</h3>
                         <div class="flex-1 bg-gray-100 rounded-md overflow-hidden">
-                            <img alt="Caught fish" class="object-cover w-full h-full">
+                            <img th:src="@{'/images/' + ${fish.imagePath}}" alt="Caught fish" class="object-cover w-full h-full"
+                                 th:if="${fish.imagePath != null}">
+                            <p th:if="${fish.imagePath == null}">You didn't provide an image of this fish :(</p>
                         </div>
                     </div>
                 </div>

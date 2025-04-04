@@ -23,6 +23,10 @@
     textarea {
       resize: none;
     }
+    header {
+      position: relative;
+      z-index: 2000;
+    }
   </style>
 </head>
 <body>
@@ -31,27 +35,40 @@
 
   <!-- Location -->
   <main class="flex-grow container mx-auto px-4 py-8">
-    <form th:action="@{/statistics/addFish}" method="POST" th:object="${fishDto}" class="space-y-4">
-
+    <form th:action="@{/statistics/addFish}" method="POST"
+          th:object="${fishDto}" class="space-y-4" enctype="multipart/form-data">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div class="bg-green-50 p-6 rounded-lg shadow-md h-full">
-        <div class="bg-white p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-green-600 mb-3">Catch spot:</h3>
-          <div class="space-y-4">
-            <div class="flex items-center">
+        <div class="bg-white p-4 rounded-lg space-y-6">
+          <h3 class="text-lg font-semibold text-green-600">Catch spot:</h3>
+
+          <!-- Map Section -->
+          <div class="h-64 w-full rounded-lg overflow-hidden">
+            <div id="map" class="h-full w-full"></div>
+          </div>
+
+          <!-- Location Info Group -->
+          <div class="space-y-3 bg-gray-50 p-3 rounded-lg">
+            <div id="location-info" class="location-info text-sm text-gray-700"></div>
+            <div class="grid grid-cols-2 gap-3">
               <div>
-<!--              <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 me-4"-->
-<!--                      onclick="getLocation()">Update Location</button>-->
-                <div id="location-info" class="location-info"></div>
-                <input type="text" id="latitude" name="latitude" th:field="*{latitude}" placeholder="Latitude" readonly>
-                <input type="text" id="longitude" name="longitude" th:field="*{longitude}" placeholder="Longitude" readonly>
+                <label class="text-xs text-gray-500 block">Latitude</label>
+                <input type="text" id="latitude" name="latitude" th:field="*{latitude}"
+                       class="w-full p-2 border rounded bg-gray-100 text-sm" readonly required>
               </div>
-              <div id="map"></div>
+              <div>
+                <label class="text-xs text-gray-500 block">Longitude</label>
+                <input type="text" id="longitude" name="longitude" th:field="*{longitude}"
+                       class="w-full p-2 border rounded bg-gray-100 text-sm" readonly required>
+              </div>
             </div>
           </div>
-          <div class="w-full max-w-md mx-auto mt-6 mb-19">
-            <label for="city" class="text-sm text-gray-600">Confirm the city</label>
-            <select id="city" name="city" th:field="*{city}" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500">
+
+          <!-- City Selection -->
+          <div>
+            <label for="city" class="text-sm text-gray-600 block mb-1">Confirm the city</label>
+            <select id="city" name="city" th:field="*{city}"
+                    class="w-full p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500 text-sm">
               <option value="Sremska Mitrovica">Sremska Mitrovica</option>
               <option value="Novi Sad">Novi Sad</option>
               <option value="Belgrade">Belgrade</option>
@@ -105,6 +122,17 @@
                 <textarea id="note" name="note" th:field="*{note}" th:rows="3" th:maxlength="255" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Write something..."></textarea>
               </div>
             </div>
+
+          <div class="flex items-center">
+            <i data-lucide="image" class="w-6 h-6 text-blue-500 mr-3"></i>
+            <div class="w-full">
+              <label for="picture" class="text-sm text-gray-600">Upload picture</label>
+              <input id="picture" name="picture" type="file" accept="image/*"
+                     class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500 file:mr-3 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     @change="validateFileSize">
+              <p class="text-xs text-gray-500 mt-1">Max 5MB (JPEG, PNG, etc.)</p>
+            </div>
+          </div>
 
             <div class="flex justify-end">
               <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Submit</button>
@@ -189,6 +217,16 @@
         break;
     }
     document.getElementById("location-info").innerHTML = `<span style="color: red;">${errorMsg}</span>`;
+  }
+
+  function validateFileSize(event) {
+    const file = event.target.files[0];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (file && file.size > maxSize) {
+      alert('File size exceeds 5MB limit');
+      event.target.value = '';
+    }
   }
 </script>
 </body>

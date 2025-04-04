@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -50,7 +51,10 @@ public class StatisticsController {
     }
 
     @PostMapping(value = "/addFish")
-    public String addNewFish(@ModelAttribute FishDto fishDto) throws IOException {
+    public String addNewFish(@ModelAttribute FishDto fishDto, @RequestParam(name = "picture", required = false) MultipartFile file) throws IOException {
+        if (file.getSize() > 5 * 1024 * 1024) {
+            // Handle size error
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Optional<User> user = userService.findByUsername(authentication.getName());
@@ -63,9 +67,9 @@ public class StatisticsController {
                     weatherResponse.getWindSpeedKph(), weatherResponse.getWindDirection(), weatherResponse.getPrecipMm(), weatherResponse.getHumidity(),
                     waterResponse.get(3).text(), waterResponse.get(2).text(), waterResponse.getFirst().text(),
                     astronomyResponse.getMoonPhase(), astronomyResponse.getIllumination(), fishDto.getLongitude(), fishDto.getLatitude(),
-                    fishDto.getCity(), LocalDateTime.now());
-            caughtFishService.saveCaughtFish(caughtFish);
-            return "redirect:/statistics/myFish";
+                    fishDto.getCity(), LocalDateTime.now(), null);
+            caughtFishService.saveCaughtFish(caughtFish, file);
+        return "redirect:/statistics/myFish";
         }
         return "redirect:/login";
     }
