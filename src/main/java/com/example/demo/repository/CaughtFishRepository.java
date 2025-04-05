@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface CaughtFishRepository extends JpaRepository<CaughtFish, Long> {
     List<CaughtFish> findAllByOwner(User owner);
+    CaughtFish findFirstByOwnerOrderByIdDesc(User owner);
 }

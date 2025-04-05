@@ -56,19 +56,22 @@ public class StatisticsController {
             // Handle size error
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         if (authentication != null && authentication.isAuthenticated()) {
-            Optional<User> user = userService.findByUsername(authentication.getName());
-            AstronomyResponse astronomyResponse = astronomyService.getAstronomyConditions(fishDto.getCity());
+            User user = userService.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + username));            AstronomyResponse astronomyResponse = astronomyService.getAstronomyConditions(fishDto.getCity());
             WeatherResponse weatherResponse = weatherService.getWeatherConditions(fishDto.getCity());
             List<Element> waterResponse = waterService.getWaterData(fishDto.getCity());
             CaughtFish caughtFish = new CaughtFish(fishDto.getType(), fishDto.getWeight(), fishDto.getLength(), fishDto.getNote(),
-                    user.get(), weatherResponse.getTemperatureC(), weatherResponse.getPressureMb(),
+                    user, weatherResponse.getTemperatureC(), weatherResponse.getPressureMb(),
                     weatherResponse.getCondition(), weatherResponse.getClouds(), weatherResponse.getUv(),
                     weatherResponse.getWindSpeedKph(), weatherResponse.getWindDirection(), weatherResponse.getPrecipMm(), weatherResponse.getHumidity(),
                     waterResponse.get(3).text(), waterResponse.get(2).text(), waterResponse.getFirst().text(),
                     astronomyResponse.getMoonPhase(), astronomyResponse.getIllumination(), fishDto.getLongitude(), fishDto.getLatitude(),
                     fishDto.getCity(), LocalDateTime.now(), null);
             caughtFishService.saveCaughtFish(caughtFish, file);
+            user.setTotalCatches(user.getTotalCatches() + 1);
+            userService.update(user);
         return "redirect:/statistics/myFish";
         }
         return "redirect:/login";

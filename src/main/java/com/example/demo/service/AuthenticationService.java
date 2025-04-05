@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
@@ -32,7 +33,7 @@ public class AuthenticationService {
 
     public User signup(RegisterUserDto input, String token) {
         User user = new User(input.getUsername(), input.getEmail(),
-                    passwordEncoder.encode(input.getPassword()), Role.USER);
+                    passwordEncoder.encode(input.getPassword()), Role.USER, 0, LocalDate.now());
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);

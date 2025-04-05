@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,11 @@ public class User implements UserDetails {
     @Enumerated
     private Role role;
 
+    @Column(nullable = false)
+    private Integer totalCatches;
+    @Column(nullable = false)
+    private LocalDate joinDate;
+
     @Column(name = "verification_code")
     private String verificationCode;
     @Column(name = "verification_expiration")
@@ -43,11 +49,13 @@ public class User implements UserDetails {
     private List<CaughtFish> caughtFish = new ArrayList<>();
 
     //constructor for creating an unverified user
-    public User(String username, String email, String password, Role role) {
+    public User(String username, String email, String password, Role role, Integer totalCatches, LocalDate joinDate) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.totalCatches = totalCatches;
+        this.joinDate = joinDate;
     }
 
     @Override

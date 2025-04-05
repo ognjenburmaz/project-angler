@@ -11,16 +11,27 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.Session;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {
+public class SecurityConfig<S extends Session> {
 
     private final SupabaseUserDetailsService userDetailsService;
+    private final FindByIndexNameSessionRepository<S> sessionRepository;
 
-    public SecurityConfig(SupabaseUserDetailsService userDetailsService) {
+    public SecurityConfig(SupabaseUserDetailsService userDetailsService,
+                          FindByIndexNameSessionRepository<S> sessionRepository) {
         this.userDetailsService = userDetailsService;
+        this.sessionRepository = sessionRepository;
+    }
+
+    @Bean
+    public SpringSessionBackedSessionRegistry<S> sessionRegistry() {
+        return new SpringSessionBackedSessionRegistry<>(this.sessionRepository);
     }
 
     @Bean
@@ -28,8 +39,7 @@ public class SecurityConfig {
         http
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**","/css/**","/","/conditions/**").permitAll()
-//                        .requestMatchers("/users/**").hasRole("ADMIN")
+                        .requestMatchers("/auth/**","/css/**","/","/conditions/**", "/error", "/403").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -41,18 +51,21 @@ public class SecurityConfig {
                         .logoutUrl("/auth/logout")
                         .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
-                        .deleteCookies("SESSION")
+                        .deleteCookies("STINKYFISH")
+                        .clearAuthentication(true)
                         .permitAll()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .sessionFixation().migrateSession()
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(true)
+                        .sessionRegistry(sessionRegistry())
                 )
                 .rememberMe(remember -> remember
-                        .key("stinkyFish")
-                        .tokenValiditySeconds(0)
+                        .key("stinkyFishSuperSecretKey709")
+                        .tokenValiditySeconds(1209600)
+                        .userDetailsService(userDetailsService)
                 )
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/403")

@@ -62,4 +62,6 @@ public class CaughtFishService {
             }
         }
         caughtFishRepository.deleteById(id); }
+
+    public CaughtFish getLastCaughtFishByOwnerId(User owner) { return caughtFishRepository.findFirstByOwnerOrderByIdDesc(owner); }
 }

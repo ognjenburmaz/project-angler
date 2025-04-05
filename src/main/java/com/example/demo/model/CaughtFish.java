@@ -105,4 +105,6 @@ public class CaughtFish {
         this.time = time;
         this.imagePath = imagePath;
     }
+
+    //The fish can be separated from its environment data eventually
 }
