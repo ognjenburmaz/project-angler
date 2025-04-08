@@ -4,10 +4,12 @@ import com.example.demo.model.CaughtFish;
 import com.example.demo.model.User;
 import com.example.demo.repository.CaughtFishRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,20 +32,29 @@ public class CaughtFishService {
     public List<CaughtFish> getAllByOwnerId(User owner) { return caughtFishRepository.findAllByOwner(owner); }
 
     public CaughtFish saveCaughtFish(CaughtFish caughtFish, MultipartFile file) throws IOException {
-        if (file != null) {
+        if (file != null && !file.isEmpty() && StringUtils.hasText(file.getOriginalFilename())) {
             File dir = new File(IMAGE_DIR);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
 
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path filePath = Path.of(IMAGE_DIR + fileName);
+            String originalFilename = file.getOriginalFilename();
+            String cleanFilename = originalFilename.replaceAll("[^a-zA-Z0-9.-]", "_");
+            String fileName = System.currentTimeMillis() + "_" + cleanFilename;
 
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            Path destination = Path.of(IMAGE_DIR).resolve(fileName);
+
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
+            }
 
             caughtFish.setImagePath(fileName);
+        } else {
+            caughtFish.setImagePath(null);
         }
-        return caughtFishRepository.save(caughtFish); }
+
+        return caughtFishRepository.save(caughtFish);
+    }
 
     public void deleteCaughtFish(Long id) {
         CaughtFish caughtFish = caughtFishRepository.findById(id)

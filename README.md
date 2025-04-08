@@ -12,7 +12,7 @@ Frontend: Thymeleaf, JavaScript, HTML, Tailwind CSS
 
 ## Features
 
-Current fishing conditions info for multiple locations. Catch logging.
+Current fishing conditions info for multiple locations. Catch logging. Partial Serbian and full English language support.
 
 ## Setup Instructions
 
@@ -37,4 +37,4 @@ Access the application at http://localhost:8080.
 
 ## Possible Updates
 
-Implement JWT and Redis, separate front from back.
+Database should be normalized. Should add same images of the site to this README. Implement JWT and Redis, switch to Angular for front.

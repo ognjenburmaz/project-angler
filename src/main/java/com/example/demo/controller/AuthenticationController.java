@@ -5,6 +5,7 @@ import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.dto.VerifyUserDto;
 import com.example.demo.model.User;
 import com.example.demo.service.AuthenticationService;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.encrypt.Encryptors;
@@ -21,12 +22,13 @@ import java.time.Instant;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
+    Dotenv dotenv = Dotenv.load();
+    String encryptionPassword = dotenv.get("ENCRYPTION_PASSWORD");
+    String encryptionSalt = dotenv.get("ENCRYPTION_SALT");
+
     public AuthenticationController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
-
-    @Value("${app.encryption.password}") private String encryptionPassword;
-    @Value("${app.encryption.salt}") private String encryptionSalt;
 
     @GetMapping(value = "/login")
     public String login(Model model) {

@@ -6,18 +6,22 @@ import com.example.demo.model.User;
 import com.example.demo.response.AstronomyResponse;
 import com.example.demo.response.WeatherResponse;
 import com.example.demo.service.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.jsoup.nodes.Element;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.LocaleResolver;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Controller
@@ -29,13 +33,16 @@ public class StatisticsController {
     private final WeatherService weatherService;
     private final WaterService waterService;
     private final AstronomyService astronomyService;
+    private final LocaleResolver localeResolver;
 
-    public StatisticsController(UserService userService, CaughtFishService caughtFishService, WeatherService weatherService, WaterService waterService, AstronomyService astronomyService) {
+    public StatisticsController(UserService userService, CaughtFishService caughtFishService, WeatherService weatherService,
+                                WaterService waterService, AstronomyService astronomyService, LocaleResolver localeResolver) {
         this.userService = userService;
         this.caughtFishService = caughtFishService;
         this.weatherService = weatherService;
         this.waterService = waterService;
         this.astronomyService = astronomyService;
+        this.localeResolver = localeResolver;
     }
 
     @GetMapping(value = "/addFish")
@@ -77,20 +84,31 @@ public class StatisticsController {
         return "redirect:/login";
     }
 
+    @Transactional(readOnly = true)
     @GetMapping(value = "/myFish")
-    public String myFish(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            List<CaughtFish> allFish = caughtFishService.getAllByOwnerId(userService.findByUsername(username).get());
-            model.addAttribute("allFish", allFish);
-            return "allFish";
-        }
-        return "redirect:/login";
+    public String myFish(Model model, HttpServletRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return "redirect:/login";
+
+        List<FishDto> fishDTOs = caughtFishService.getAllByOwnerId(
+                        userService.findByUsername(auth.getName()).get()
+                ).stream()
+                .map(fish -> new FishDto(
+                        fish.getId(),
+                        translateType(fish.getType(), localeResolver.resolveLocale(request)),
+                        fish.getWeight(),
+                        fish.getLength(),
+                        fish.getNote(),
+                        fish.getTime()
+                ))
+                .toList();
+
+        model.addAttribute("allFish", fishDTOs);
+        return "allFish";
     }
 
     @PostMapping(value = "/myFish/delete/{id}")
-    public String deleteFish(@ModelAttribute FishDto fishDto, @PathVariable Long id) {
+    public String deleteFish(@PathVariable Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             caughtFishService.deleteCaughtFish(id);
@@ -113,5 +131,22 @@ public class StatisticsController {
             return "viewFish";
         }
         return "redirect:/login";
+    }
+
+    private String translateType(String type, Locale locale) {
+        if (!"en".equals(locale.getLanguage())) return type;
+        return switch (type) {
+            case "Smuđ" -> "Zander";
+            case "Som" -> "Catfish";
+            case "Bandar" -> "Perch";
+            case "Bucov" -> "Asp";
+            case "Štuka" -> "Pike";
+            case "Šaran" -> "Common Carp";
+            case "Deverika" -> "Bream";
+            case "Babuška" -> "Prussian Carp";
+            case "Mrena" -> "Barbel";
+            case "Podust" -> "Common Nase";
+            default -> type;
+        };
     }
 }

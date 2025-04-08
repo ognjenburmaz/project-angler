@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Record A Catch | Fishing Buddy</title>
+  <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=160&id=DeHAfTPdyqoS&format=png">
   <link th:href="@{/css/output.css}" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -24,8 +28,10 @@
       resize: none;
     }
     header {
-      position: relative;
       z-index: 2000;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
     }
   </style>
 </head>
@@ -34,13 +40,13 @@
   <div th:replace="~{navbar :: navbar}"></div>
 
   <!-- Location -->
-  <main class="flex-grow container mx-auto px-4 py-8">
+  <main class="flex-grow container mx-auto px-4 pt-28 pb-8">
     <form th:action="@{/statistics/addFish}" method="POST"
           th:object="${fishDto}" class="space-y-4" enctype="multipart/form-data">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div class="bg-green-50 p-6 rounded-lg shadow-md h-full">
         <div class="bg-white p-4 rounded-lg space-y-6">
-          <h3 class="text-lg font-semibold text-green-600">Catch spot:</h3>
+          <h3 class="text-lg font-semibold text-green-600" th:text="#{catch.spot}">Catch spot:</h3>
 
           <!-- Map Section -->
           <div class="h-64 w-full rounded-lg overflow-hidden">
@@ -52,12 +58,12 @@
             <div id="location-info" class="location-info text-sm text-gray-700"></div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="text-xs text-gray-500 block">Latitude</label>
+                <label class="text-xs text-gray-500 block" th:text="#{latitude}">Latitude</label>
                 <input type="text" id="latitude" name="latitude" th:field="*{latitude}"
                        class="w-full p-2 border rounded bg-gray-100 text-sm" readonly required>
               </div>
               <div>
-                <label class="text-xs text-gray-500 block">Longitude</label>
+                <label class="text-xs text-gray-500 block" th:text="#{longitude}">Longitude</label>
                 <input type="text" id="longitude" name="longitude" th:field="*{longitude}"
                        class="w-full p-2 border rounded bg-gray-100 text-sm" readonly required>
               </div>
@@ -66,12 +72,12 @@
 
           <!-- City Selection -->
           <div>
-            <label for="city" class="text-sm text-gray-600 block mb-1">Confirm the city</label>
+            <label for="city" class="text-sm text-gray-600 block mb-1" th:text="#{confirm.city}">Confirm the city</label>
             <select id="city" name="city" th:field="*{city}"
                     class="w-full p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500 text-sm">
               <option value="Sremska Mitrovica">Sremska Mitrovica</option>
               <option value="Novi Sad">Novi Sad</option>
-              <option value="Belgrade">Belgrade</option>
+              <option value="Belgrade" th:text="#{belgrade}">Belgrade</option>
             </select>
           </div>
         </div>
@@ -81,20 +87,24 @@
       <div class="bg-blue-50 p-6 rounded-lg shadow-md h-full">
 
         <div class="bg-white p-4 rounded-lg space-y-4">
-          <h3 class="text-lg font-semibold text-blue-700 mb-3">What's the catch?</h3>
+          <h3 class="text-lg font-semibold text-blue-700 mb-3" th:text="#{whats.catch}">What's the catch?</h3>
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <!-- Fish Selection -->
             <div class="flex items-center">
               <i data-lucide="fish" class="w-6 h-6 text-blue-500 mr-3"></i>
               <div class="w-full">
-                <label for="fish" class="text-sm text-gray-600">Pick a fish</label>
+                <label for="fish" class="text-sm text-gray-600" th:text="#{pick.fish}">Pick a fish</label>
                 <select id="fish" name="fish" th:field="*{type}" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500">
-                  <option value="Zander">Zander</option>
-                  <option value="Bass">Bass</option>
-                  <option value="Trout">Trout</option>
-                  <option value="Salmon">Salmon</option>
-                  <option value="Catfish">Catfish</option>
-                  <option value="Perch">Perch</option>
+                  <option value="Smuđ" th:text="#{fish.zander}">Zander</option>
+                  <option value="Som" th:text="#{fish.catfish}">Catfish</option>
+                  <option value="Bandar" th:text="#{fish.perch}">Perch</option>
+                  <option value="Bucov" th:text="#{fish.asp}">Asp</option>
+                  <option value="Štuka" th:text="#{fish.pike}">Pike</option>
+                  <option value="Šaran" th:text="#{fish.common.carp}">Common Carp</option>
+                  <option value="Deverika" th:text="#{fish.bream}">Bream</option>
+                  <option value="Babuška" th:text="#{fish.prussian.carp}">Prussian Carp</option>
+                  <option value="Mrena" th:text="#{fish.barbel}">Barbel</option>
+                  <option value="Podust" th:text="#{fish.common.nase}">Common Nase</option>
                 </select>
               </div>
             </div>
@@ -102,40 +112,40 @@
               <div class="flex items-center">
                 <i data-lucide="weight" class="w-6 h-6 text-blue-500 mr-3"></i>
                 <div>
-                  <label for="weight" class="text-sm text-gray-600">Input weight</label>
-                  <input id="weight" name="weight" th:field="*{weight}" type="number" step=".01" min="0" max="100" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Weight (kg)">
+                  <label for="weight" class="text-sm text-gray-600" th:text="#{input.weight}">Input weight</label>
+                  <input id="weight" name="weight" th:field="*{weight}" type="number" step=".01" min="0" max="100" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" th:placeholder="#{weight.placeholder}">
                 </div>
               </div>
 
               <div class="flex items-center">
                 <i data-lucide="ruler" class="w-6 h-6 text-blue-500 mr-3"></i>
                 <div>
-                  <label for="length" class="text-sm text-gray-600">Input length</label>
-                  <input id="length" name="length" th:field="*{length}" type="number" min="1" max="300" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Length (cm)">
+                  <label for="length" class="text-sm text-gray-600" th:text="#{input.length}">Input length</label>
+                  <input id="length" name="length" th:field="*{length}" type="number" min="1" max="300" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" th:placeholder="#{length.placeholder}">
                 </div>
               </div>
 
             <div class="flex items-center">
               <i data-lucide="info" class="w-6 h-6 text-blue-500 mr-3"></i>
               <div class="w-full">
-                <label for="note" class="text-sm text-gray-600">Leave a note!</label>
-                <textarea id="note" name="note" th:field="*{note}" th:rows="3" th:maxlength="255" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" placeholder="Write something..."></textarea>
+                <label for="note" class="text-sm text-gray-600" th:text="#{leave.note}">Leave a note!</label>
+                <textarea id="note" name="note" th:field="*{note}" th:rows="3" th:maxlength="255" class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500" th:placeholder="#{note.placeholder}"></textarea>
               </div>
             </div>
 
           <div class="flex items-center">
             <i data-lucide="image" class="w-6 h-6 text-blue-500 mr-3"></i>
             <div class="w-full">
-              <label for="picture" class="text-sm text-gray-600">Upload picture</label>
+              <label for="picture" class="text-sm text-gray-600" th:text="#{upload.picture}">Upload picture</label>
               <input id="picture" name="picture" type="file" accept="image/*"
                      class="w-full mt-1 p-2 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-500 file:mr-3 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                      @change="validateFileSize">
-              <p class="text-xs text-gray-500 mt-1">Max 5MB (JPEG, PNG, etc.)</p>
+              <p class="text-xs text-gray-500 mt-1" th:text="#{max.size}">Max 5MB (JPEG, PNG, etc.)</p>
             </div>
           </div>
 
             <div class="flex justify-end">
-              <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Submit</button>
+              <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700" th:text="#{submit}">Submit</button>
             </div>
         </div>
       </div>
@@ -145,12 +155,8 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-gray-800 text-white py-4">
-    <div class="container mx-auto px-4 text-center">
-      <p class="text-sm">&copy; 2025 Fishing Buddy | Your fishing companion</p>
-      <p class="text-xs text-gray-400 mt-1">Weather and location data provided by trusted sources. Updates every 5 minutes.</p>
-    </div>
-  </footer>
+  <div th:replace="~{footer :: footer}"></div>
+
 </div>
 <!--suppress JSUnresolvedReference -->
 <script>

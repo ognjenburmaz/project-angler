@@ -3,32 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Record A Catch | Fishing Buddy</title>
+    <title>My Catches | Fishing Buddy</title>
+    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=160&id=DeHAfTPdyqoS&format=png">
     <link th:href="@{/css/output.css}" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
 <body>
 <div class="min-h-screen bg-gray-100 flex flex-col">
     <div th:replace="~{navbar :: navbar}"></div>
 
-    <main class="flex-grow container mx-auto px-4 py-8">
+    <main class="flex-grow container mx-auto px-4 pt-28 pb-8">
         <div class="w-full overflow-x-auto">
             <table id="fishTable" class="min-w-full divide-y divide-gray-200 whitespace-nowrap">
                 <thead class="bg-gradient-to-r from-blue-600 to-green-600 text-white">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">#</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Weight (kg)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Length (cm)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Note</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Time caught</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" th:text="#{table.header.type}">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" th:text="#{table.header.weight}">Weight (kg)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" th:text="#{table.header.length}">Length (cm)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" th:text="#{table.header.note}">Note</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" th:text="#{table.header.time}">Time caught</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" th:text="#{table.header.actions}">Actions</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -40,19 +49,21 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${fish.weight}"></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${fish.length}"></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${#strings.length(fish.note) > 30 ? #strings.substring(fish.note, 0, 30) + '...' : fish.note}"></td>
-                    <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate" th:text="${fish.time}"></td>
+                    <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate" th:text="${fish.createdAt}"></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
                             <a th:href="@{/statistics/myFish/view/{id}(id=${fish.id})}"
                                class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md hover:bg-indigo-100 transition-colors">
-                                <i class="fas fa-eye mr-1"></i> View
+                                <i class="fas fa-eye mr-1"></i>
+                                <span th:text="#{button.view}"></span>
                             </a>
                             <form th:action="@{/statistics/myFish/delete/{id}(id=${fish.id})}" method="post" class="inline">
                                 <input type="hidden" name="_csrf" th:value="${_csrf.token}">
                                 <button type="submit"
                                         class="text-rose-600 hover:text-rose-900 bg-rose-50 px-3 py-1 rounded-md hover:bg-rose-100 transition-colors"
                                         onclick="return confirm('Permanently delete this fish?')">
-                                    <i class="fas fa-trash-alt mr-1"></i> Delete
+                                    <i class="fas fa-trash-alt mr-1"></i>
+                                    <span th:text="#{button.delete}"></span>
                                 </button>
                             </form>
                         </div>
@@ -65,12 +76,8 @@
 
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-4">
-        <div class="container mx-auto px-4 text-center">
-            <p class="text-sm">&copy; 2025 Fishing Buddy | Your fishing companion</p>
-            <p class="text-xs text-gray-400 mt-1">Weather and location data provided by trusted sources. Updates every 5 minutes.</p>
-        </div>
-    </footer>
+    <div th:replace="~{footer :: footer}"></div>
+
 </div>
 <!--suppress JSUnresolvedReference -->
 <script>
