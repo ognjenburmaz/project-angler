@@ -101,12 +101,10 @@
                 $('.dataTables_length select').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500');
                 $('.dataTables_filter input').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500');
 
-                // Style the pagination buttons
                 $('#fishTable_paginate a').addClass('px-2.5 py-1 text-sm rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors');
                 $('#fishTable_paginate a.current').addClass('!bg-emerald-500 !border-emerald-500 !text-white');
             },
             drawCallback: function() {
-                // Re-apply styles after table updates (e.g., pagination)
                 $('#fishTable_paginate a').addClass('px-2.5 py-1 text-sm rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors');
                 $('#fishTable_paginate a.current').addClass('!bg-emerald-500 !border-emerald-500 !text-white');
             }

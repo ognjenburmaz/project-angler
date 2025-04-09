@@ -2,9 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,14 +21,6 @@ public class UserService {
         List<User> users = new ArrayList<>();
         userRepository.findAll().forEach(users::add);
         return users;
-    }
-
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof User) {
-            return ((User) authentication.getPrincipal());
-        }
-        return null;
     }
 
     public Optional<User> findByEmail(String email) { return userRepository.findByEmail(email); }
