@@ -21,7 +21,7 @@ public class WaterService {
         return getWaterData(city);
     }
 
-    public List<Element> getWaterData(String city) throws IOException {
+    protected List<Element> getWaterData(String city) throws IOException {
         System.out.println("Scraping Water data for city: " + city);
 
         List<Element> waterConditions = new ArrayList<>();

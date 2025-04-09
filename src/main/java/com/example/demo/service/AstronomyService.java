@@ -29,7 +29,7 @@ public class AstronomyService {
         return getAstronomyData(city);
     }
 
-    public AstronomyResponse getAstronomyData(String city) {
+    protected AstronomyResponse getAstronomyData(String city) {
         System.out.println("Calling Astronomy API for city: " + city);
 
         String url = ASTRONOMY_URL.replace("{city}", city).replace("{apiKey}", API_KEY);

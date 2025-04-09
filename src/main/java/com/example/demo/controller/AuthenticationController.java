@@ -3,10 +3,8 @@ package com.example.demo.controller;
 import com.example.demo.dto.LoginUserDto;
 import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.dto.VerifyUserDto;
-import com.example.demo.model.User;
 import com.example.demo.service.AuthenticationService;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
@@ -63,7 +61,11 @@ public class AuthenticationController {
                 return "errorPage";
             }
 
-            model.addAttribute("email", email);
+            model.addAttribute("token", token);
+            VerifyUserDto verifyUserDto = new VerifyUserDto();
+            verifyUserDto.setEmail(email);
+            verifyUserDto.setToken(token);
+            model.addAttribute("verifyUserDto", verifyUserDto);
             return "verify";
 
         } catch (Exception e) {
@@ -87,27 +89,30 @@ public class AuthenticationController {
                 encryptionSalt
         );
         String token = encryptor.encrypt(registerUserDto.getEmail() + "|" + System.currentTimeMillis());
-        User user = authenticationService.signup(registerUserDto, token);
-        model.addAttribute("token", token);
+        authenticationService.signup(registerUserDto, token);
 
-        VerifyUserDto verifyUserDto = new VerifyUserDto(user.getEmail());
-        model.addAttribute("verifyUserDto", verifyUserDto);
-
-        return "verify";
+        return "redirect:/auth/verify?token=" + token;
     }
 
     @PostMapping("/verify")
     public String verifyUser(
             @ModelAttribute VerifyUserDto verifyUserDto,
-            RedirectAttributes redirectAttributes
-    ) {
+            RedirectAttributes redirectAttributes, Model model) {
         try {
             authenticationService.verifyUser(verifyUserDto);
             redirectAttributes.addFlashAttribute("success", "Account verified successfully!");
             return "redirect:/auth/login";
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/error";
+            VerifyUserDto verifyDto = new VerifyUserDto();
+            verifyDto.setEmail(verifyUserDto.getEmail());
+            verifyDto.setToken(verifyUserDto.getToken());
+
+            model.addAttribute("email", verifyUserDto.getEmail());
+            model.addAttribute("token", verifyUserDto.getToken());
+            model.addAttribute("verifyUserDto", verifyDto);
+            model.addAttribute("error", "Wrong code, please try again.");
+
+            return "verify";
         }
     }
 

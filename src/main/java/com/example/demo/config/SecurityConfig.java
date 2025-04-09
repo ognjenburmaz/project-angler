@@ -9,29 +9,21 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.Session;
-import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig<S extends Session> {
+public class SecurityConfig {
 
     private final SupabaseUserDetailsService userDetailsService;
-    private final FindByIndexNameSessionRepository<S> sessionRepository;
+    private final SessionRegistry sessionRegistry;
 
-    public SecurityConfig(SupabaseUserDetailsService userDetailsService,
-                          FindByIndexNameSessionRepository<S> sessionRepository) {
+    public SecurityConfig(SupabaseUserDetailsService userDetailsService, SessionRegistry sessionRegistry) {
         this.userDetailsService = userDetailsService;
-        this.sessionRepository = sessionRepository;
-    }
-
-    @Bean
-    public SpringSessionBackedSessionRegistry<S> sessionRegistry() {
-        return new SpringSessionBackedSessionRegistry<>(this.sessionRepository);
+        this.sessionRegistry = sessionRegistry;
     }
 
     @Bean
@@ -58,12 +50,13 @@ public class SecurityConfig<S extends Session> {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .sessionFixation().migrateSession()
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(true)
-                        .sessionRegistry(sessionRegistry())
+                        .maximumSessions(2)
+//                        .maxSessionsPreventsLogin(true)
+                        .expiredUrl("/auth/login?expired=true")
+                        .sessionRegistry(sessionRegistry)
                 )
                 .rememberMe(remember -> remember
-                        .key("stinkyFishSuperSecretKey709")
+                        .key("stinkyFishSuperSecretKey70958259")
                         .tokenValiditySeconds(1209600)
                         .userDetailsService(userDetailsService)
                 )

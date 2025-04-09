@@ -30,7 +30,7 @@ public class WeatherService {
         return getWeatherData(city);
     }
 
-    public WeatherResponse getWeatherData(String city) {
+    protected WeatherResponse getWeatherData(String city) {
         System.out.println("Calling Weather API for city: " + city);
         lastApiCallTime = LocalDateTime.now();
 

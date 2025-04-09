@@ -12,8 +12,5 @@ import lombok.Setter;
 public class VerifyUserDto {
     private String email;
     private String verificationCode;
-
-    public VerifyUserDto(String email) {
-        this.email = email;
-    }
+    private String token;
 }

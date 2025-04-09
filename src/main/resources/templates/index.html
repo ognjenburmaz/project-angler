@@ -31,6 +31,7 @@
         <div class="md:w-1/2 mb-12 md:mb-0 z-10">
             <h1 sec:authorize="!isAuthenticated()" th:text="#{reel.experience}" class="text-4xl md:text-5xl font-bold leading-tight mb-4">Reel in Your Best Fishing Experience</h1>
             <p sec:authorize="!isAuthenticated()" th:text="#{track.conditions}" class="text-xl md:text-2xl text-blue-100 mb-8">Track conditions, log catches, and discover new fishing spots with ease.</p>
+            <p sec:authorize="!isAuthenticated()" th:text="#{check.conditions}" class="text-xl md:text-2xl text-blue-100 mb-8">Some text.</p>
             <h1 sec:authorize="isAuthenticated()" th:text="#{hello(${username})}" class="text-4xl md:text-5xl font-bold leading-tight mb-4">Hello</h1>
             <p sec:authorize="isAuthenticated()" th:text="#{start.exploring}" class="text-xl md:text-2xl text-blue-100 mb-8">Start exploring using the menu.</p>
             <p sec:authorize="isAuthenticated()" th:text="#{good.luck}" class="text-xl md:text-2xl text-blue-100 mb-8">Tight lines.</p>
@@ -168,7 +169,7 @@
 <section class="py-5 bg-gray-800 text-white">
     <div class="text-center">
         <h4 class="text-lg font-medium text-white mb-3" th:text="#{contact}">Contact?</h4>
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-center gap-4 ps-12 sm:ps-0">
             <a href="https://www.linkedin.com/in/ognjenburmaz/"
                target="_blank"
                rel="noopener noreferrer"
