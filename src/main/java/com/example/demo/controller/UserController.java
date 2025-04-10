@@ -52,8 +52,10 @@ public class UserController {
         CaughtFish fish = caughtFishService.getLastCaughtFishByOwnerId(user);
         model.addAttribute("fish", fish);
 
-        model.addAttribute("date", fish.getTime()
-                .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+        if (fish != null) {
+            model.addAttribute("date", fish.getTime()
+                    .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+        }
 
         return "userProfile";
     }
