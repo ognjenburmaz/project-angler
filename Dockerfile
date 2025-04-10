@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-jammy AS build
+FROM maven:3.9.4-eclipse-temurin-21 AS build
 
 LABEL authors="ognjenburmaz"
 
@@ -12,12 +12,12 @@ COPY src ./src
 
 RUN mvn clean package -DskipTests
 
-FROM openjdk:21-jre
+FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
 EXPOSE 8080
 
-COPY --from=build /app/target/FishingBuddy-1.0.0.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
