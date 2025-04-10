@@ -2,11 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.dto.WeatherDto;
 import com.example.demo.response.WeatherResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,8 +14,9 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class WeatherService {
 
-    Dotenv dotenv = Dotenv.load();
-    String API_KEY = dotenv.get("WEATHER_API_KEY");
+    @Value("${weather.api.key}")
+    String apiKey;
+
     private static final String CURRENT_WEATHER_URL = "https://api.weatherapi.com/v1/current.json?key={apiKey}&q={city}";
 
     private final RestTemplate restTemplate;
@@ -34,7 +35,7 @@ public class WeatherService {
         System.out.println("Calling Weather API for city: " + city);
         lastApiCallTime = LocalDateTime.now();
 
-        String url = CURRENT_WEATHER_URL.replace("{city}", city).replace("{apiKey}", API_KEY);
+        String url = CURRENT_WEATHER_URL.replace("{city}", city).replace("{apiKey}", apiKey);
         WeatherDto weatherDTO = restTemplate.getForObject(url, WeatherDto.class);
 
         WeatherResponse weatherResponse = new WeatherResponse();

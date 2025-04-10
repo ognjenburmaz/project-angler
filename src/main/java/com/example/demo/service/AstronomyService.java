@@ -2,7 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.AstronomyDto;
 import com.example.demo.response.AstronomyResponse;
-import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -13,8 +13,9 @@ import java.time.LocalDateTime;
 @Service
 public class AstronomyService {
 
-    Dotenv dotenv = Dotenv.load();
-    String API_KEY = dotenv.get("WEATHER_API_KEY");
+    @Value("${weather.api.key}")
+    String apiKey;
+
     private static final String ASTRONOMY_URL = "https://api.weatherapi.com/v1/astronomy.json?key={apiKey}&q={city}";
 
     private final RestTemplate restTemplate;
@@ -32,7 +33,7 @@ public class AstronomyService {
     protected AstronomyResponse getAstronomyData(String city) {
         System.out.println("Calling Astronomy API for city: " + city);
 
-        String url = ASTRONOMY_URL.replace("{city}", city).replace("{apiKey}", API_KEY);
+        String url = ASTRONOMY_URL.replace("{city}", city).replace("{apiKey}", apiKey);
         AstronomyDto astronomyDTO = restTemplate.getForObject(url, AstronomyDto.class);
 
         AstronomyResponse astronomyResponse = new AstronomyResponse();
