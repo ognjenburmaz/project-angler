@@ -47,7 +47,6 @@
     </div>
     <form th:action="@{/statistics/addFish}" method="POST"
           th:object="${fishDto}" class="space-y-4" enctype="multipart/form-data">
-      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div class="bg-green-50 p-6 rounded-lg shadow-md h-full">
         <div class="bg-white p-4 rounded-lg space-y-6">

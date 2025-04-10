@@ -6,6 +6,9 @@ import com.example.demo.dto.VerifyUserDto;
 import com.example.demo.service.AuthenticationService;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Controller;
@@ -30,12 +33,18 @@ public class AuthenticationController {
 
     @GetMapping(value = "/login")
     public String login(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && !(auth instanceof AnonymousAuthenticationToken))
+            return "redirect:/";
         model.addAttribute("loginUserDto", new LoginUserDto());
         return "login";
     }
 
     @GetMapping(value = "/signup")
     public String register(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && !(auth instanceof AnonymousAuthenticationToken))
+            return "redirect:/";
         model.addAttribute("registerUserDto", new RegisterUserDto());
         return "register";
     }
@@ -50,6 +59,9 @@ public class AuthenticationController {
                 encryptionSalt
         );
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && !(auth instanceof AnonymousAuthenticationToken))
+                return "redirect:/";
             String decrypted = encryptor.decrypt(token);
             String[] parts = decrypted.split("\\|");
             String email = parts[0];

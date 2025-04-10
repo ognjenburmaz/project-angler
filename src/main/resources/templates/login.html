@@ -35,7 +35,6 @@
     <div class="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 class="text-2xl font-semibold text-gray-700 text-center mb-6" th:text="#{login}">Log into your Account</h2>
         <form th:action="@{/auth/login}" method="post" th:object="${loginUserDto}" class="space-y-4">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div>
                 <label for="username" class="block text-sm font-medium text-gray-700" th:text="#{username}">Username</label>
                 <input type="text" id="username" name="username" th:field="*{username}" th:maxlength="20" required

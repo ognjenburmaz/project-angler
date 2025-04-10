@@ -35,7 +35,6 @@
   <div class="bg-white p-8 rounded-lg shadow-md w-96">
     <h2 class="text-2xl font-semibold text-gray-700 text-center mb-6" th:text="#{verify.account}">Verify Account</h2>
     <form th:action="@{/auth/verify}" method="post" th:object="${verifyUserDto}" class="space-y-4">
-      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
       <input type="hidden" th:field="*{email}" th:value="*{email}">
       <input type="hidden" name="token" th:value="*{token}"/>
       <div>

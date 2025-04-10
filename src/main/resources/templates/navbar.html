@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:x-transition="http://www.w3.org/1999/xhtml">
+      xmlns:x-transition="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,13 +96,16 @@
                             class="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-lg z-50"
                     >
                         <ul class="py-2">
-                            <li>
+                            <li sec:authorize="!isAuthenticated()">
+                                <a th:href="@{/auth/login}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{log.in}">Log In</a>
+                            </li>
+                            <li sec:authorize="isAuthenticated()">
                                 <a th:href="@{/statistics/addFish}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{record.a.catch}">Record a catch</a>
                             </li>
-                            <li>
+                            <li sec:authorize="isAuthenticated()">
                                 <a th:href="@{/statistics/myFish}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{my.catches}">My catches</a>
                             </li>
-                            <li>
+                            <li sec:authorize="isAuthenticated()">
                                 <a th:href="@{/users/me}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{account}">Account</a>
                             </li>
 

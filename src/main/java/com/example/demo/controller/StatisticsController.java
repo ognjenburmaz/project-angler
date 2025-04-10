@@ -67,6 +67,10 @@ public class StatisticsController {
             if (file.getSize() > 5 * 1024 * 1024) {
                 throw new MaxUploadSizeExceededException(5 * 1024 * 1024);
             }
+            if (!(fishDto.getCity().equals("Sremska Mitrovica") || fishDto.getCity().equals("Novi Sad") || fishDto.getCity().equals("Belgrade"))) {
+                model.addAttribute("error", "City picked does not match required format");
+                return "addFish";
+            }
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
                 User user = userService.findByUsername(username)
                         .orElseThrow(() -> new RuntimeException("User not found: " + username));
