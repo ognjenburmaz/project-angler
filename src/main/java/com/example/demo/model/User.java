@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.example.demo.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,65 +23,38 @@ import java.util.List;
 @Table(name = "users")
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(unique = true, nullable = false)
     private String username;
+
     @Column(unique = true, nullable = false)
     private String email;
+
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false)
-    @Enumerated
+
+    @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(nullable = false)
-    private Integer totalCatches;
-    @Column(nullable = false)
-    private LocalDate joinDate;
+    private Integer totalCatches = 0;
+    private LocalDate joinDate = LocalDate.now();
 
-    @Column(name = "verification_code")
     private String verificationCode;
-    @Column(name = "verification_expiration")
     private LocalDateTime verificationCodeExpiresAt;
     private boolean enabled;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CaughtFish> caughtFish = new ArrayList<>();
-
-    //constructor for creating an unverified user
-    public User(String username, String email, String password, Role role, Integer totalCatches, LocalDate joinDate) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.totalCatches = totalCatches;
-        this.joinDate = joinDate;
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Catch> catches = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(() -> "ROLE_" + role.name());
     }
 
-    //TODO: add proper boolean checks
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return enabled; }
 }

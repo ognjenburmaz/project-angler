@@ -1,25 +1,21 @@
 package com.example.demo.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public class AstronomyDto {
 
     private Astronomy astronomy;
 
-    public Astronomy getAstronomy() {
-        return astronomy;
-    }
-
+    @Getter
     public static class Astronomy {
 
         @JsonProperty("astro")
         private Astro astro;
-
-        public Astro getAstro() {
-            return astro;
-        }
     }
 
+    @Getter
     public static class Astro {
         @JsonProperty("sunrise")
         private String sunrise;
@@ -44,38 +40,5 @@ public class AstronomyDto {
 
         @JsonProperty("is_sun_up")
         private int isSunUp;
-
-        public String getSunrise() {
-            return sunrise;
-        }
-
-        public String getSunset() {
-            return sunset;
-        }
-
-        public String getMoonrise() {
-            return moonrise;
-        }
-
-        public String getMoonset() {
-            return moonset;
-        }
-
-        public String getMoonPhase() {
-            return moonPhase;
-        }
-
-
-        public int getMoonIllumination() {
-            return moonIllumination;
-        }
-
-        public int getIsMoonUp() {
-            return isMoonUp;
-        }
-
-        public int getIsSunUp() {
-            return isSunUp;
-        }
     }
 }

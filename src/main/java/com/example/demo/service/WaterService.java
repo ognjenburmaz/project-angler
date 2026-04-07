@@ -1,71 +1,51 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.CatchResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class WaterService {
 
-    @Cacheable(value = "waterCache", key = "#city", unless = "#result == null")
+    @Cacheable(value = "waterCache", key = "#city")
     public List<Element> getWaterConditions(String city) throws IOException {
-        return getWaterData(city);
-    }
+        String url = switch (city) {
+            case "Sremska Mitrovica" -> "https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=45090";
+            case "Belgrade" -> "https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=45099";
+            case "Novi Sad" -> "https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=42035";
+            default -> throw new IllegalArgumentException("Unsupported city");
+        };
 
-    protected List<Element> getWaterData(String city) throws IOException {
-        System.out.println("Scraping Water data for city: " + city);
+        Document doc = Jsoup.connect(url).get();
+        List<Element> elements = new ArrayList<>();
+        elements.add(doc.select("td:has(img[src*='nivo.gif'])").first());    // Index 0: Level
+        elements.add(doc.select("td:has(img[src*='promena.gif'])").first()); // Index 1: Change
+        elements.add(doc.select("td:has(img[src*='protok.gif'])").first());  // Index 2: Flow
+        elements.add(doc.select("td:has(img[src*='temp.gif'])").first());    // Index 3: Temp
 
-        List<Element> waterConditions = new ArrayList<>();
-
-        Document doc;
-
-        switch (city) {
-            case "Sremska Mitrovica" : doc = Jsoup.connect("https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=45090").get();
-                break;
-            case "Belgrade" : doc = Jsoup.connect("https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=45099").get();
-                break;
-            case "Novi Sad" : doc = Jsoup.connect("https://www.hidmet.gov.rs/latin/hidrologija/izvestajne/prognoza.php?hm_id=42035").get();
-                break;
-            default: return null;
+        // Add future levels (Indices 4, 5, 6)
+        Element futureRoot = doc.select("td.siva75.levo:matchesOwn(\\s*Vodostaj\\s*\\(cm\\):)").first();
+        if (futureRoot != null) {
+            Element f1 = futureRoot.nextElementSibling();
+            elements.add(f1);
+            elements.add(f1.nextElementSibling());
+            elements.add(f1.nextElementSibling().nextElementSibling());
         }
-
-        Element level = doc.select("td:has(img[src='../../../repository/ikonice/interf/nivo.gif'])").first();
-        waterConditions.add(level);
-
-        Element levelChange = doc.select("td:has(img[src='../../../repository/ikonice/interf/promena.gif'])").first();
-        waterConditions.add(levelChange);
-
-        Element flow = doc.select("td:has(img[src='../../../repository/ikonice/interf/protok.gif'])").first();
-        waterConditions.add(flow);
-
-        Element temp = doc.select("td:has(img[src='../../../repository/ikonice/interf/temp.gif'])").first();
-        waterConditions.add(temp);
-
-        Element futureLevel1 = Objects.requireNonNull(doc.select("td.siva75.levo:matchesOwn(\\s*Vodostaj\\s*\\(cm\\):)").first()).nextElementSibling();
-        waterConditions.add(futureLevel1);
-
-        assert futureLevel1 != null;
-        Element futureLevel2 = futureLevel1.nextElementSibling();
-        waterConditions.add(futureLevel2);
-
-        assert futureLevel2 != null;
-        Element futureLevel3 = futureLevel2.nextElementSibling();
-        waterConditions.add(futureLevel3);
-
-        return waterConditions;
+        return elements;
     }
 
-    @CacheEvict(value = "waterCache", key = "#city")
-    public void evictCache(String city) {
-        System.out.println("Evicting water cache at " + LocalDateTime.now());
+    public CatchResponse.WaterDto mapToDto(List<Element> elements) {
+        return CatchResponse.WaterDto.builder()
+                .height(elements.get(0).text())
+                .flow(elements.get(2).text())
+                .temperature(elements.get(3).text())
+                .build();
     }
 }

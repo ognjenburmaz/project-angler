@@ -1,113 +1,124 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.LoginResponse;
+import com.example.demo.dto.LoginUserDto;
 import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.dto.VerifyUserDto;
-import com.example.demo.model.Role;
+import com.example.demo.enums.Role;
+import com.example.demo.jwt.JwtService;
 import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
 import jakarta.mail.MessagingException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserService userService;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    public AuthenticationService(
-            UserService userService,
-            BCryptPasswordEncoder passwordEncoder,
-            EmailService emailService
-    ) {
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
+    public User signup(RegisterUserDto input) {
+        if (userRepository.findByEmail(input.getEmail()).isPresent()) {
+            throw new RuntimeException("Email is already in use.");
+        }
+
+        User user = User.builder()
+                .username(input.getUsername())
+                .email(input.getEmail())
+                .password(passwordEncoder.encode(input.getPassword()))
+                .role(Role.USER)
+                .totalCatches(0)
+                .joinDate(LocalDate.now())
+                .enabled(false)
+                .verificationCode(generateVerificationCode())
+                .verificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15))
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        sendVerificationEmail(savedUser);
+
+        return savedUser;
     }
 
-    public User signup(RegisterUserDto input, String token) {
-        User user = new User(input.getUsername(), input.getEmail(),
-                    passwordEncoder.encode(input.getPassword()), Role.USER, 0, LocalDate.now());
-        user.setVerificationCode(generateVerificationCode());
-        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
-        user.setEnabled(false);
-        sendVerificationEmail(user, token);
-        return userService.save(user);
+    public LoginResponse authenticate(LoginUserDto input) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(input.getUsername(), input.getPassword())
+        );
+
+        User user = (User) authentication.getPrincipal();
+
+        String jwtToken = jwtService.generateToken(user);
+        return new LoginResponse(jwtToken, 86400000);
     }
 
     public void verifyUser(VerifyUserDto input) {
-        Optional<User> optionalUser = userService.findByEmail(input.getEmail());
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("Verification code has expired");
-            }
-            if (user.getVerificationCode().equals(input.getVerificationCode())) {
-                user.setEnabled(true);
-                user.setVerificationCode(null);
-                user.setVerificationCodeExpiresAt(null);
-                userService.save(user);
-            } else {
-                throw new RuntimeException("Invalid verification code");
-            }
-        } else {
-            throw new RuntimeException("User not found");
+        User user = userRepository.findByEmail(input.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Verification code expired");
         }
+        if (!user.getVerificationCode().equals(input.getVerificationCode())) {
+            throw new RuntimeException("Invalid code");
+        }
+
+        user.setEnabled(true);
+        user.setVerificationCode(null);
+        user.setVerificationCodeExpiresAt(null);
+        userRepository.save(user);
     }
 
-    public void resendVerificationCode(String email, String token) {
-        Optional<User> optionalUser = userService.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            if (user.isEnabled()) {
-                throw new RuntimeException("Account is already verified");
-            }
-            user.setVerificationCode(generateVerificationCode());
-            user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
-            sendVerificationEmail(user, token);
-            userService.save(user);
-        } else {
-            throw new RuntimeException("User not found");
+    public void resendVerificationCode(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        if (user.isEnabled()) {
+            throw new RuntimeException("This account is already verified.");
         }
+
+        user.setVerificationCode(generateVerificationCode());
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
+
+        userRepository.save(user);
+        sendVerificationEmail(user);
     }
 
-    private void sendVerificationEmail(User user, String token) {
-        String returnUrl = "http://localhost:8080/auth/verify?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
-
-        String htmlMessage = """
+    private void sendVerificationEmail(User user) {
+        String subject = "Verify your Fishing Buddy Account";
+        String htmlMessage = String.format("""
         <html>
-        <body style="font-family: Arial, sans-serif;">
-            <div style="background-color: #f5f5f5; padding: 20px;">
-                <h2 style="color: #333;">Welcome to Fishing Buddy!</h2>
-                <p style="font-size: 16px;">Please enter this verification code to activate your account:</p>
-                <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-                    <h3 style="color: #333;">Verification Code:</h3>
-                    <p style="font-size: 24px; font-weight: bold; color: #007bff;">%s</p>
+        <body style="font-family: 'Poppins', sans-serif; background-color: #f9fafb; padding: 40px; text-align: center;">
+            <div style="max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 24px; shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <h2 style="color: #1e40af; margin-bottom: 8px;">Welcome, %s!</h2>
+                <p style="color: #6b7280; font-size: 14px;">Use the code below to verify your account.</p>
+                <div style="background: #eff6ff; padding: 20px; border-radius: 16px; margin: 24px 0;">
+                    <span style="font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #2563eb;">%s</span>
                 </div>
-                <p style="font-size: 14px; margin-top: 20px;">
-                    <strong>Lost the code?</strong> 
-                    <a href="%s" style="color: #007bff;">Click here to return to verification</a> 
-                    (link expires in 15 minutes).
-                </p>
+                <p style="color: #9ca3af; font-size: 12px;">This code expires in 15 minutes.</p>
             </div>
         </body>
         </html>
-        """.formatted(user.getVerificationCode(), returnUrl);
+        """, user.getUsername(), user.getVerificationCode());
 
         try {
-            emailService.sendVerificationEmail(
-                    user.getEmail(),
-                    "Verify Your Fishing Buddy Account",
-                    htmlMessage
-            );
+            emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
         } catch (MessagingException e) {
-            throw new RuntimeException("Email sending failed", e);
+            System.err.println("Email Error: " + e.getMessage());
+            throw new RuntimeException("We couldn't send the verification email. Please try again.");
         }
     }
 
@@ -118,12 +129,12 @@ public class AuthenticationService {
     }
 
     public boolean isEmailAlreadyInUse(String email) {
-        Optional<User> optionalUser = userService.findByEmail(email);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
         return optionalUser.isPresent();
     }
 
     public boolean isUsernameAlreadyInUse(String username) {
-        Optional<User> optionalUser = userService.findByUsername(username);
+        Optional<User> optionalUser = userRepository.findByUsername(username);
         return optionalUser.isPresent();
     }
 }

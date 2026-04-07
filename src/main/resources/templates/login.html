@@ -10,66 +10,91 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
+        body { font-family: 'Poppins', sans-serif; }
+        .auth-gradient { background: linear-gradient(135deg, #2563eb 0%, #16a34a 100%); }
     </style>
 </head>
-<body class="flex flex-col min-h-screen bg-gray-100">
+<body class="bg-gray-50 min-h-screen flex flex-col">
 
-<!-- Header -->
-<header class="bg-gradient-to-r from-blue-600 to-green-600 text-white p-4 shadow-md">
-    <div class="container mx-auto flex items-center">
-        <div class="flex items-center me-auto">
-            <i data-lucide="fish" class="w-8 h-8 mr-2"></i>
-            <a th:href="@{/}" class="hover:opacity-80 transition-opacity">
-                <h1 class="text-2xl font-bold">Fishing Buddy</h1>
-            </a>
-        </div>
+<!-- Simplified Header for Auth Pages -->
+<header class="auth-gradient py-6 shadow-lg">
+    <div class="container mx-auto px-4 flex justify-center">
+        <a th:href="@{/}" class="flex items-center gap-2 group">
+            <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm group-hover:scale-110 transition-transform">
+                <i data-lucide="fish" class="w-8 h-8 text-white"></i>
+            </div>
+            <h1 class="text-2xl font-black text-white tracking-tight">Fishing Buddy</h1>
+        </a>
     </div>
 </header>
 
-<!-- Login Form -->
-<main class="flex-grow flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 class="text-2xl font-semibold text-gray-700 text-center mb-6" th:text="#{login}">Log into your Account</h2>
-        <form th:action="@{/auth/login}" method="post" th:object="${loginUserDto}" class="space-y-4">
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-700" th:text="#{username}">Username</label>
-                <input type="text" id="username" name="username" th:field="*{username}" th:maxlength="20" required
-                       class="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none">
+<main class="flex-grow flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md">
+        <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-blue-100/50 border border-gray-100">
+
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black text-gray-800 mb-2" th:text="#{login}">Welcome Back</h2>
+                <p class="text-gray-400 text-sm" th:text="#{login.subtitle}">Log in to track your next big catch.</p>
             </div>
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700" th:text="#{password}">Password</label>
-                <input type="password" id="password" name="password" th:field="*{password}" th:maxlength="50" required
-                       class="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none">
+
+            <!-- Error Message -->
+            <div th:if="${error}" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-2xl text-sm flex items-center gap-3">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                <span th:text="${error}">Invalid credentials</span>
             </div>
-            <div class="flex items-center justify-between text-nowrap">
-                <label for="remember-me" class="block text-sm font-medium text-gray-700">Remember me: </label>
-                <input type="checkbox" id="remember-me" name="remember-me" class="me-auto ms-2" checked>
+
+            <!-- Success Message (from verification) -->
+            <div th:if="${param.verified}" class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-2xl text-sm flex items-center gap-3">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span th:text="#{account.verified}">Account verified! Please log in.</span>
             </div>
-            <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition" th:text="#{log.in}">
-                Log In
-            </button>
-        </form>
-        <div th:if="${param.error}" th:text="#{invalid}" class="alert alert-danger text-center pt-2 text-red-600" role="alert">
-            Invalid username or password
+
+            <form th:action="@{/auth/login}" method="POST" th:object="${loginUserDto}" class="space-y-6">
+                <!-- Username -->
+                <div class="space-y-1">
+                    <label for="username" class="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1" th:text="#{username}">Username</label>
+                    <div class="relative">
+                        <input type="text" id="username" th:field="*{username}" required
+                               class="w-full p-4 pl-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all text-gray-700"
+                               placeholder="johndoe">
+                        <i data-lucide="user" class="w-5 h-5 absolute left-4 top-4 text-gray-300"></i>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="space-y-1">
+                    <label for="password" class="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1" th:text="#{password}">Password</label>
+                    <div class="relative">
+                        <input type="password" id="password" th:field="*{password}" required
+                               class="w-full p-4 pl-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all text-gray-700"
+                               placeholder="••••••••">
+                        <i data-lucide="lock" class="w-5 h-5 absolute left-4 top-4 text-gray-300"></i>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit"
+                        class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:scale-[1.02] active:scale-95 transition-all duration-200">
+                    <span th:text="#{log.in}">Log In</span>
+                </button>
+            </form>
+
+            <div class="mt-10 pt-8 border-t border-gray-50 text-center">
+                <p class="text-sm text-gray-500">
+                    <span th:text="#{no.account}">Don't have an account?</span>
+                    <a th:href="@{/auth/signup}" class="text-blue-600 font-bold hover:underline ml-1" th:text="#{sign.up}">Sign up</a>
+                </p>
+            </div>
         </div>
-        <p class="text-center text-sm text-gray-600 mt-4">
-            <span th:text="#{no.account}">Don't have an account?</span>
-            <a th:href="@{/auth/signup}" class="text-blue-500 hover:underline" th:text="#{sign.up}">Sign up</a>
-        </p>
     </div>
 </main>
 
-<!-- Footer -->
 <div th:replace="~{footer :: footer}"></div>
 
 <script>
     lucide.createIcons();
 </script>
-
 </body>
 </html>

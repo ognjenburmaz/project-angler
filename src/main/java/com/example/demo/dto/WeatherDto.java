@@ -1,14 +1,13 @@
 package com.example.demo.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public class WeatherDto {
     private Current current;
 
-    public Current getCurrent() {
-        return current;
-    }
-
+    @Getter
     public static class Current {
         @JsonProperty("temp_c")
         private double tempC;
@@ -35,50 +34,11 @@ public class WeatherDto {
 
         @JsonProperty("humidity")
         private int humidity;
-
-        public double getTempC() {
-            return tempC;
-        }
-
-        public double getPressureMb() {
-            return pressureMb;
-        }
-
-        public Condition getCondition() {
-            return condition;
-        }
-
-        public int getCloud() {
-            return cloud;
-        }
-
-        public double getWindKph() {
-            return windKph;
-        }
-
-        public String getWindDir() {
-            return windDir;
-        }
-
-        public double getUv() {
-            return uv;
-        }
-
-        public double getPrecipMm() {
-            return precipMm;
-        }
-
-        public int getHumidity() {
-            return humidity;
-        }
     }
 
+    @Getter
     public static class Condition {
         @JsonProperty("text")
         private String text;
-
-        public String getText() {
-            return text;
-        }
     }
 }
