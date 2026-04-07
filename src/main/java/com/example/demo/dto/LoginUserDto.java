@@ -1,11 +1,12 @@
 package com.example.demo.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class LoginUserDto {
+    @NotBlank
     private String username;
+    @NotBlank
     private String password;
 }
