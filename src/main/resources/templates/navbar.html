@@ -1,159 +1,115 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:x-transition="http://www.w3.org/1999/xhtml"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navbar</title>
-    <link th:href="@{/css/output.css}" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
-    <style>
-        [x-cloak] { display: none !important; }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-    </style>
-</head>
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:x-transition="http://www.w3.org/1999/xhtml">
 <body>
 <div th:fragment="navbar">
-    <header class="bg-gradient-to-r from-blue-600 to-green-600 text-white p-4 shadow-md fixed top-0 left-0 right-0 z-50">
-        <div class="container mx-auto flex items-center">
-            <div class="flex items-center me-auto">
-                <i data-lucide="fish" class="w-8 h-8 mr-2"></i>
-                <a th:href="@{/}" class="hover:opacity-80 transition-opacity">
-                    <h1 class="text-2xl font-bold">Fishing Buddy</h1>
+    <header class="bg-gradient-to-r from-blue-600 to-green-600 text-white shadow-lg fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-opacity-90">
+        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+
+            <!-- Logo -->
+            <div class="flex items-center gap-2">
+                <div class="bg-white/20 p-1.5 rounded-lg">
+                    <i data-lucide="fish" class="w-6 h-6 text-white"></i>
+                </div>
+                <a th:href="@{/}" class="hover:opacity-90 transition-opacity">
+                    <h1 class="text-xl font-bold tracking-tight">Fishing Buddy</h1>
                 </a>
             </div>
 
-            <div class="flex items-center gap-3">
+            <!-- Actions -->
+            <div class="flex items-center gap-2 md:gap-4">
 
-                <div class="relative" x-data="{ open: false, submenu: '' }" x-cloak>
-                    <button
-                            @click="open = !open"
-                            class="flex items-center space-x-1 px-2 py-2.5 rounded-md hover:bg-gray-800"
-                            aria-haspopup="true"
-                            :aria-expanded="open"
-                    >
+                <!-- Language Switcher -->
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open"
+                            class="p-2 rounded-xl hover:bg-white/10 transition-colors flex items-center gap-1">
                         <i data-lucide="globe" class="w-5 h-5"></i>
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
+                        <i data-lucide="chevron-down" class="w-3 h-3 opacity-70"></i>
                     </button>
-
-                    <!-- Main Dropdown Menu -->
-                    <div
-                            x-show="open" style="display: none;"
-                            @click.away="open = false; submenu = ''"
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 scale-95"
-                            x-transition:enter-end="opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-75"
-                            x-transition:leave-start="opacity-100 scale-100"
-                            x-transition:leave-end="opacity-0 scale-95"
-                            class="absolute right-0 top-full mt-2 w-25 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-lg z-50"
-                    >
-                        <ul class="py-2">
-                            <li>
-                                <a href="?lang=en" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{english}">English</a>
-                            </li>
-                            <li>
-                                <a href="?lang=sr" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{serbian}">Serbian</a>
-                            </li>
-                        </ul>
+                    <div x-show="open" @click.away="open = false" x-cloak
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         class="absolute right-0 mt-2 w-32 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
+                        <a href="?lang=en" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <span class="mr-2">🇺🇸</span> English
+                        </a>
+                        <a href="?lang=sr" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <span class="mr-2">🇷🇸</span> Srpski
+                        </a>
                     </div>
                 </div>
 
-                <!-- Main Dropdown Button -->
-                <div class="relative" x-data="{ open: false, submenu: '' }" x-cloak>
-                    <button
-                            @click="open = !open"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 transition-colors"
-                            aria-haspopup="true"
-                            :aria-expanded="open"
-                    >
+                <!-- Main Menu -->
+                <div class="relative" x-data="{ open: false, cityOpen: false }">
+                    <button @click="open = !open"
+                            class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium border border-white/10">
                         <span th:text="#{menu}">Menu</span>
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
+                        <i data-lucide="menu" class="w-4 h-4"></i>
                     </button>
 
-                    <!-- Main Dropdown Menu -->
-                    <div
-                            x-show="open" style="display: none;"
-                            @click.away="open = false; submenu = ''"
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 scale-95"
-                            x-transition:enter-end="opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-75"
-                            x-transition:leave-start="opacity-100 scale-100"
-                            x-transition:leave-end="opacity-0 scale-95"
-                            class="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 border border-gray-300 rounded-lg shadow-lg z-50"
-                    >
-                        <ul class="py-2">
-                            <li sec:authorize="!isAuthenticated()">
-                                <a th:href="@{/auth/login}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{log.in}">Log In</a>
-                            </li>
-                            <li sec:authorize="isAuthenticated()">
-                                <a th:href="@{/statistics/addFish}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{record.a.catch}">Record a catch</a>
-                            </li>
-                            <li sec:authorize="isAuthenticated()">
-                                <a th:href="@{/statistics/myFish}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{my.catches}">My catches</a>
-                            </li>
-                            <li sec:authorize="isAuthenticated()">
-                                <a th:href="@{/users/me}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors" th:text="#{account}">Account</a>
-                            </li>
+                    <div x-show="open" @click.away="open = false; cityOpen = false" x-cloak
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 overflow-hidden">
 
-                            <!-- City Conditions Submenu -->
-                            <li class="relative" x-data="{ cityOpen: false }" @mouseenter="cityOpen = true" @mouseleave="cityOpen = false">
-                                <button
-                                        @click="cityOpen = !cityOpen"
-                                        class="w-full flex justify-between items-center px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors text-left"
-                                        aria-haspopup="true"
-                                        :aria-expanded="cityOpen"
-                                >
-                                    <span th:text="#{city.conditions}">City Conditions</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
-                                </button>
-                                <!-- City Submenu Items -->
-                                <ul
-                                        x-show="cityOpen"
-                                        @click.away="cityOpen = false"
-                                        class="absolute right-full top-0 ml-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
-                                >
-                                    <li>
-                                        <a href="/conditions?city=Sremska Mitrovica" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors">
-                                            Sremska Mitrovica
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/conditions?city=Belgrade" th:text="#{belgrade}" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors">
-                                            Belgrade
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/conditions?city=Novi Sad" class="block px-4 py-2 hover:bg-blue-500 hover:text-white transition-colors">
-                                            Novi Sad
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
+                        <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-widest" th:text="#{navigation}">Navigation</div>
+
+                        <!-- Guest Links -->
+                        <div sec:authorize="!isAuthenticated()">
+                            <a th:href="@{/auth/login}" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                <i data-lucide="log-in" class="w-4 h-4"></i> <span th:text="#{log.in}">Log In</span>
+                            </a>
+                        </div>
+
+                        <!-- Authenticated Links -->
+                        <div sec:authorize="isAuthenticated()">
+                            <a th:href="@{/statistics/addFish}" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i> <span th:text="#{record.a.catch}">Record Catch</span>
+                            </a>
+                            <a th:href="@{/statistics/myFish}" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                <i data-lucide="list" class="w-4 h-4"></i> <span th:text="#{my.catches}">My Catches</span>
+                            </a>
+                            <a th:href="@{/users/me}" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                <i data-lucide="user" class="w-4 h-4"></i> <span th:text="#{account}">Account</span>
+                            </a>
+                        </div>
+
+                        <!-- City Conditions (Accordion Style for Mobile/Web) -->
+                        <div class="border-t border-gray-50 mt-2 pt-2">
+                            <button @click="cityOpen = !cityOpen"
+                                    class="w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="map" class="w-4 h-4"></i> <span th:text="#{city.conditions}">Conditions</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 transition-transform" :class="cityOpen ? 'rotate-90' : ''"></i>
+                            </button>
+
+                            <div x-show="cityOpen" x-transition class="bg-gray-50">
+                                <a href="/conditions?city=Sremska Mitrovica" class="block pl-11 pr-4 py-2 text-sm text-gray-600 hover:text-blue-600">Sremska Mitrovica</a>
+                                <a href="/conditions?city=Belgrade" class="block pl-11 pr-4 py-2 text-sm text-gray-600 hover:text-blue-600" th:text="#{belgrade}">Belgrade</a>
+                                <a href="/conditions?city=Novi Sad" class="block pl-11 pr-4 py-2 text-sm text-gray-600 hover:text-blue-600">Novi Sad</a>
+                            </div>
+                        </div>
+
+                        <!-- Logout -->
+                        <div sec:authorize="isAuthenticated()" class="border-t border-gray-50 mt-2 pt-2">
+                            <a th:href="@{/auth/logout}" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 transition-colors">
+                                <i data-lucide="log-out" class="w-4 h-4"></i> <span th:text="#{log.out}">Log Out</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
+    <!-- Spacer to prevent content from hiding under fixed navbar -->
+    <div class="h-16"></div>
 </div>
+
 <script>
-    document.addEventListener('alpine:init', () => {});
     lucide.createIcons();
 </script>
 </body>

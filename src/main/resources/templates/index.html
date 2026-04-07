@@ -13,154 +13,131 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
+        body { font-family: 'Poppins', sans-serif; }
+        .glass-effect { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .hero-gradient { background: linear-gradient(135deg, #2563eb 0%, #16a34a 100%); }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-900">
 <div th:replace="~{navbar :: navbar}"></div>
 
-<!-- Main Section -->
-<section class="bg-gradient-to-r from-blue-600 to-green-600 relative text-white overflow-hidden pt-12">
-    <div class="container mx-auto px-6 py-15 md:py-24 flex flex-col md:flex-row items-center">
-        <div class="md:w-1/2 mb-12 md:mb-0 z-10">
-            <h1 sec:authorize="!isAuthenticated()" th:text="#{reel.experience}" class="text-4xl md:text-5xl font-bold leading-tight mb-4">Reel in Your Best Fishing Experience</h1>
-            <p sec:authorize="!isAuthenticated()" th:text="#{track.conditions}" class="text-xl md:text-2xl text-blue-100 mb-8">Track conditions, log catches, and discover new fishing spots with ease.</p>
-            <p sec:authorize="!isAuthenticated()" th:text="#{check.conditions}" class="text-xl md:text-2xl text-blue-100 mb-8">Some text.</p>
-            <h1 sec:authorize="isAuthenticated()" th:text="#{hello(${username})}" class="text-4xl md:text-5xl font-bold leading-tight mb-4">Hello</h1>
-            <p sec:authorize="isAuthenticated()" th:text="#{start.exploring}" class="text-xl md:text-2xl text-blue-100 mb-8">Start exploring using the menu.</p>
-            <p sec:authorize="isAuthenticated()" th:text="#{good.luck}" class="text-xl md:text-2xl text-blue-100 mb-8">Tight lines.</p>
-            <div sec:authorize="!isAuthenticated()" class="flex flex-col sm:flex-row gap-4">
-                <a href="/auth/login" th:text="#{get.started}" class="bg-white text-blue-800 font-semibold px-8 py-3 rounded-lg shadow-lg hover:bg-blue-50 transition duration-300 text-center">
-                    Get Started
-                </a>
-                <a href="#features" th:text="#{learn.more}" class="border-2 border-white text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-400 hover:bg-opacity-10 transition duration-300 text-center">
-                    Learn More
-                </a>
+<!-- Hero Section -->
+<section class="relative min-h-[80vh] flex items-center overflow-hidden hero-gradient text-white">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+        <svg class="h-full w-full" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0 100 C 20 0 50 0 100 100 Z"></path>
+        </svg>
+    </div>
+
+    <div class="container mx-auto px-6 relative z-10">
+        <div class="flex flex-col lg:flex-row items-center gap-12">
+            <div class="lg:w-1/2 text-center lg:text-left">
+                <div sec:authorize="!isAuthenticated()">
+                    <h1 th:text="#{reel.experience}" class="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
+                        Reel in Your Best Fishing Experience
+                    </h1>
+                    <p th:text="#{track.conditions}" class="text-lg md:text-xl text-blue-50 mb-8 opacity-90">
+                        Track conditions, log catches, and discover new fishing spots with ease.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                        <a href="/auth/login" class="bg-white text-blue-700 font-bold px-8 py-4 rounded-xl shadow-xl hover:scale-105 transition transform duration-200">
+                            Get Started
+                        </a>
+                        <a href="#features" class="glass-effect text-white font-bold px-8 py-4 rounded-xl hover:bg-white/20 transition duration-200">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+
+                <div sec:authorize="isAuthenticated()">
+                    <h1 class="text-4xl md:text-6xl font-extrabold mb-6">
+                        <span th:text="#{hello}">Hello</span>, <span th:text="${username}" class="text-green-300">Fisherman</span>!
+                    </h1>
+                    <p th:text="#{start.exploring}" class="text-xl text-blue-50 mb-8">Start exploring using the menu to track your next big catch.</p>
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-4">
+                        <!-- Add Catch Button -->
+                        <a href="/statistics/addFish" class="bg-white text-blue-700 font-bold px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            <span th:text="#{add.catch}">Add Catch</span>
+                        </a>
+
+                        <!-- Check Conditions Button -->
+                        <a href="/conditions" class="glass-effect px-6 py-3 rounded-lg flex items-center gap-2">
+                            <i data-lucide="cloud-rain" class="w-5 h-5"></i>
+                            <span th:text="#{check.conditions.btn}">Check Conditions</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="md:w-1/2 flex justify-center z-10">
-            <img src="https://plus.unsplash.com/premium_photo-1664456329779-efb29dba4fa1?q=80&w=2072&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                 alt="Fishing illustration"
-                 class="w-full max-w-[600px] mx-auto h-64 md:h-96 rounded-xl shadow-2xl border-4 border-white border-opacity-20 object-cover">
+
+            <div class="lg:w-1/2 w-full">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-green-400 to-blue-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <img src="https://plus.unsplash.com/premium_photo-1664456329779-efb29dba4fa1?q=80&w=2072&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                         alt="Fishing"
+                         class="relative rounded-2xl shadow-2xl object-cover w-full h-[300px] md:h-[450px]">
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Stats Section -->
-<section class="bg-white py-12">
+<!-- Stats Grid (Mobile Optimized) -->
+<section class="pt-20 -mt-10 relative z-20">
     <div class="container mx-auto px-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div class="p-6">
-                <div class="text-4xl font-bold text-blue-600 mb-2">3</div>
-                <div class="text-gray-600" th:text="#{fishing.spots}">Fishing Spots</div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+                <div class="text-3xl font-bold text-blue-600">3</div>
+                <div class="text-sm text-gray-500 font-medium uppercase tracking-wider" th:text="#{fishing.spots}">Spots</div>
             </div>
-            <div class="p-6">
-                <div class="text-4xl font-bold text-green-600 mb-2">100+</div>
-                <div class="text-gray-600" th:text="#{catches.logged}">Catches Logged</div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+                <div class="text-3xl font-bold text-green-600">100+</div>
+                <div class="text-sm text-gray-500 font-medium uppercase tracking-wider" th:text="#{catches.logged}">Catches</div>
             </div>
-            <div class="p-6">
-                <div class="text-4xl font-bold text-yellow-600 mb-2">24/7</div>
-                <div class="text-gray-600" th:text="#{weather.updates}">Weather Updates</div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+                <div class="text-3xl font-bold text-yellow-600">24/7</div>
+                <div class="text-sm text-gray-500 font-medium uppercase tracking-wider" th:text="#{weather.updates}">Updates</div>
             </div>
-            <div class="p-6">
-                <div class="text-4xl font-bold text-teal-600 mb-2">100%</div>
-                <div class="text-gray-600" th:text="#{fishing.passion}">Fishing Passion</div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+                <div class="text-3xl font-bold text-teal-600">100%</div>
+                <div class="text-sm text-gray-500 font-medium uppercase tracking-wider" th:text="#{fishing.passion}">Passion</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section sec:authorize="!isAuthenticated()" id="features" class="py-16 bg-gray-50">
+<!-- Features -->
+<section id="features" class="py-10 bg-gray-50">
     <div class="container mx-auto px-6">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4" th:text="#{perfect.trip}">Everything You Need for a Perfect Fishing Trip</h2>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto" th:text="#{trip.description}">From weather tracking to catch logging, we've got you covered.</p>
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4" th:text="#{perfect.trip}">Perfect Fishing Trip</h2>
+            <p class="text-gray-600 text-lg" th:text="#{trip.description}">Everything you need to turn a good day into a great catch.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Feature 1 -->
-            <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-                    <i data-lucide="cloud-sun" class="w-8 h-8 text-blue-600"></i>
+            <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="thermometer-sun" class="w-7 h-7 text-blue-600"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3" th:text="#{real.time.weather}">Real-Time Weather</h3>
-                <p class="text-gray-600" th:text="#{weather.description}">Get accurate weather conditions tailored for fishing with our advanced tracking system.</p>
+                <h3 class="text-xl font-bold mb-3" th:text="#{real.time.weather}">Real-Time Weather</h3>
+                <p class="text-gray-600 leading-relaxed" th:text="#{weather.description}">Accurate atmospheric data specifically for anglers.</p>
             </div>
 
-            <!-- Feature 2 -->
-            <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                    <i data-lucide="map-pin" class="w-8 h-8 text-green-600"></i>
+            <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="anchor" class="w-7 h-7 text-green-600"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3" th:text="#{spot.discovery}">Spot Discovery</h3>
-                <p class="text-gray-600" th:text="#{discovery.description}">Find the best fishing locations near you. Our collection is ever expanding.</p>
+                <h3 class="text-xl font-bold mb-3" th:text="#{spot.discovery}">Spot Discovery</h3>
+                <p class="text-gray-600 leading-relaxed" th:text="#{discovery.description}">Find the best local spots with detailed water data.</p>
             </div>
 
-            <!-- Feature 3 -->
-            <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
-                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
-                    <i data-lucide="fish" class="w-8 h-8 text-yellow-600"></i>
+            <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                <div class="w-14 h-14 bg-yellow-50 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="book-open" class="w-7 h-7 text-yellow-600"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3" th:text="#{catch.journal}">Catch Journal</h3>
-                <p class="text-gray-600" th:text="#{journal.description}">Log your catches with photos, details, and conditions to track your fishing success.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials -->
-<section sec:authorize="!isAuthenticated()" class="py-10 bg-blue-600 text-white">
-    <div class="container mx-auto px-6">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold mb-4" th:text="#{anglers.saying}">What Anglers Are Saying</h2>
-            <p class="text-blue-100 max-w-2xl mx-auto" th:text="#{join.us}">Join us and improve your game with Fishing Buddy</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-blue-700 p-6 rounded-lg">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-                        <span class="text-xl font-bold">NG</span>
-                    </div>
-                    <div>
-                        <h4 class="font-bold">Nikola G.</h4>
-                        <p class="text-blue-200 text-sm" th:text="#{testimonial1.title}">Weekend Fisher</p>
-                    </div>
-                </div>
-                <p th:text="#{testimonial1.quote}">"Found my new favorite spot thanks to Fishing Buddy. As a beginner, this app has been invaluable."</p>
-            </div>
-
-            <div class="bg-blue-700 p-6 rounded-lg">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-                        <span class="text-xl font-bold">JM</span>
-                    </div>
-                    <div>
-                        <h4 class="font-bold">Jovan M.</h4>
-                        <p class="text-blue-200 text-sm" th:text="#{testimonial2.title}">Fly Fishing Enthusiast</p>
-                    </div>
-                </div>
-                <p th:text="#{testimonial2.quote}">"The catch logging feature helped me identify patterns I never noticed before."</p>
-            </div>
-
-            <div class="bg-blue-700 p-6 rounded-lg">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-                        <span class="text-xl font-bold">MR</span>
-                    </div>
-                    <div>
-                        <h4 class="font-bold">Milan R.</h4>
-                        <p class="text-blue-200 text-sm" th:text="#{testimonial3.title}">Zander Master</p>
-                    </div>
-                </div>
-                <p th:text="#{testimonial3.quote}">"As someone who likes to keep track of things this app eases my mind."</p>
+                <h3 class="text-xl font-bold mb-3" th:text="#{catch.journal}">Catch Journal</h3>
+                <p class="text-gray-600 leading-relaxed" th:text="#{journal.description}">Log your success with photos and environmental snapshots.</p>
             </div>
         </div>
     </div>
@@ -185,7 +162,6 @@
     </div>
 </section>
 
-<!-- Footer will be inserted here -->
 <div th:replace="~{footer :: footer}"></div>
 
 <script>
