@@ -13,6 +13,6 @@ jobs:
         run: |
           for i in {1..3}; do
             echo "Attempt $i"
-            curl -s https://your-app-name.onrender.com/api/health && break
+            curl -s https://project-angler.onrender.com/api/health && break
             sleep 10
           done
