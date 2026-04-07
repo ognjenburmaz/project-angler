@@ -42,4 +42,4 @@ Access the application at http://localhost:8080.
 
 ## Possible Updates
 
-Database should be normalized. Should add some statistics processing and an admin dashboard. Implement JWT and Redis, switch to Angular for front.
+Needs more robust validation and better error handling. Should add some statistics processing and an admin dashboard. Could add Redis for caching and deploy to Hetzner VPS.
