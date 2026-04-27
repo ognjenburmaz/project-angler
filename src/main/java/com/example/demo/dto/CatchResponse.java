@@ -1,5 +1,8 @@
 package com.example.demo.dto;
 
+import com.example.demo.enums.FishType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +27,8 @@ public class CatchResponse {
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class FishDetailsDto {
-        private String type;
+        @Enumerated(EnumType.STRING)
+        private FishType type;
         private Double weight;
         private Double length;
     }

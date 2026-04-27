@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.CatchRequest;
 import com.example.demo.dto.CatchResponse;
+import com.example.demo.enums.FishType;
 import com.example.demo.service.CatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +24,7 @@ public class StatisticsController {
     @GetMapping("/addFish")
     public String addFishPage(Model model) {
         model.addAttribute("catchRequest", new CatchRequest());
+        model.addAttribute("fishTypes", FishType.values());
         return "addFish";
     }
 
