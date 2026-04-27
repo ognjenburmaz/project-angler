@@ -107,16 +107,9 @@
                     <div class="md:col-span-2 space-y-1">
                         <label class="text-sm font-semibold text-gray-700" th:text="#{pick.fish}">Fish Species</label>
                         <select th:field="*{type}" class="w-full p-3 bg-gray-50 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500">
-                            <option value="Smuđ" th:text="#{fish.zander}">Zander</option>
-                            <option value="Som" th:text="#{fish.catfish}">Catfish</option>
-                            <option value="Bandar" th:text="#{fish.perch}">Perch</option>
-                            <option value="Bucov" th:text="#{fish.asp}">Asp</option>
-                            <option value="Štuka" th:text="#{fish.pike}">Pike</option>
-                            <option value="Šaran" th:text="#{fish.common.carp}">Common Carp</option>
-                            <option value="Deverika" th:text="#{fish.bream}">Bream</option>
-                            <option value="Babuška" th:text="#{fish.prussian.carp}">Prussian Carp</option>
-                            <option value="Mrena" th:text="#{fish.barbel}">Barbel</option>
-                            <option value="Podust" th:text="#{fish.common.nase}">Common Nase</option>
+                            <option th:each="ft : ${fishTypes}"
+                                    th:value="${ft}"
+                                    th:text="#{${ft.messageKey}}">Zander</option>
                         </select>
                     </div>
 

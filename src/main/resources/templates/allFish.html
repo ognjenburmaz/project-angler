@@ -57,7 +57,7 @@
             <tr th:each="catch, iterStat : ${allFish}" class="hover:bg-blue-50/50 transition-colors group">
                 <td class="px-6 py-4 font-medium text-gray-400" th:text="${iterStat.count}">1</td>
                 <td class="px-6 py-4">
-                    <span class="font-bold text-gray-800" th:text="${catch.fish.type}">Zander</span>
+                    <span class="font-bold text-gray-800" th:text="#{${catch.fish.type.messageKey}}">Zander</span>
                 </td>
                 <td class="px-6 py-4 text-gray-600" th:text="${catch.fish.weight + ' kg'}">2.5 kg</td>
                 <td class="px-6 py-4 text-gray-600" th:text="${catch.fish.length + ' cm'}">65 cm</td>
